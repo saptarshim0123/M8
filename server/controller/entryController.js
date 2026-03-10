@@ -1,0 +1,59 @@
+const Entry = require('../models/Entry');
+const User = require('../models/User');
+
+exports.createEntry = async (req, res) => {
+    const { title, encryptedText, images, tags } = req.body;
+
+    if (!encryptedText) {
+        return res.status(400).json({ message: 'Encrypted text is required to create an entry.' });
+    }
+
+    try {
+        const newEntry = await Entry.create({
+            userId: req.user._id,
+            title: title || '', encryptedText,
+            images: images || [],
+            tags: tags || []
+        });
+
+        const user = await User.findById(req.user._id);
+        if (user) {
+            user.lastEntryDate = new Date();
+            await user.save();
+        }
+
+        return res.status(201).json(newEntry);
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
+exports.getEntries = async (req, res) => {
+    try {
+        const entries = await Entry.find({ userId: req.user._id })
+            .select('title encryptedText images tags createdAt updatedAt');
+
+        res.status(200).json(entries);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch entries', error: err.message });
+    }
+}
+
+exports.getEntry = async (req, res) => {
+    try {
+        const entry = await Entry.findOne({
+            _id: req.params.id,
+            userId: req.user._id
+        })
+            .select('title encryptedText images tags createdAt updatedAt');
+
+        if (!entry) {
+            return res.status(404).json({ message: 'Entry not found or unauthorized' });
+        }
+
+        res.status(200).json(entry);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch entry', error: err.message });
+    }
+}
