@@ -57,3 +57,33 @@ exports.getEntry = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch entry', error: err.message });
     }
 }
+
+exports.updateEntry = async (req, res) => {
+    try {
+        const updatedEntry = await Entry.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!updatedEntry) {
+            return res.status(404).json({ message: "Entry not found!" });
+        }
+        res.status(200).json(updatedEntry);
+    } catch (err) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+exports.deleteEntry = async (req, res) => {
+    try {
+        const entry = await Entry.findByIdAndDelete(req.params.id);
+        if (!entry) return res.status(404).json({ message: "Book not found!" });
+        res.status(200).json("Entry deleted successfully!");
+    } catch (err) {
+        res.status(400).json({ message: error.message });
+    }
+}
