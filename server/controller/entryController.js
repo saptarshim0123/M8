@@ -31,8 +31,12 @@ exports.createEntry = async (req, res) => {
 
 exports.getEntries = async (req, res) => {
     try {
-        const entries = await Entry.find({ userId: req.user._id })
-            .select('title encryptedText images tags createdAt updatedAt');
+        const keyword = req.query.search 
+            ? { title: { $regex: req.query.search, $options: 'i' } }
+            : {};
+        const entries = await Entry.find({ userId: req.user._id, ...keyword })
+            .select('title images tags createdAt updatedAt')
+            .sort({ createdAt: -1 });
 
         res.status(200).json(entries);
     } catch (err) {
@@ -60,30 +64,28 @@ exports.getEntry = async (req, res) => {
 
 exports.updateEntry = async (req, res) => {
     try {
-        const updatedEntry = await Entry.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        );
+        const entry = await Entry.findOne({ _id: req.params.id, userId: req.user._id });
+        if (!entry) return res.status(404).json({ message: 'Entry not found or unauthorized' });
 
-        if (!updatedEntry) {
-            return res.status(404).json({ message: "Entry not found!" });
-        }
-        res.status(200).json(updatedEntry);
+        entry.title = req.body.title ?? entry.title;
+        entry.encryptedText = req.body.encryptedText ?? entry.encryptedText;
+        entry.tags = req.body.tags ?? entry.tags;
+        entry.images = req.body.images ?? entry.images;
+        await entry.save();
+        res.status(200).json(entry);
     } catch (err) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: Error.message });
     }
 }
 
 exports.deleteEntry = async (req, res) => {
     try {
-        const entry = await Entry.findByIdAndDelete(req.params.id);
-        if (!entry) return res.status(404).json({ message: "Book not found!" });
+        const entry = await Entry.findOne({ _id: req.params.id, userId: req.user._id });
+        if (!entry) return res.status(404).json({ message: "Entry not found!" });
+
+        await entry.deleteOne();
         res.status(200).json("Entry deleted successfully!");
     } catch (err) {
-        res.status(400).json({ message: error.message });
+        res.status(400).json({ message: err.message });
     }
 }
