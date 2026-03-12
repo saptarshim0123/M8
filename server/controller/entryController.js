@@ -1,91 +1,88 @@
 const Entry = require('../models/Entry');
 const User = require('../models/User');
+const { encrypt, decrypt } = require('../services/encryptService');
 
 exports.createEntry = async (req, res) => {
-    const { title, encryptedText, images, tags } = req.body;
-
-    if (!encryptedText) {
-        return res.status(400).json({ message: 'Encrypted text is required to create an entry.' });
+    const { title, text, images, tags } = req.body;
+    if (!text) {
+        return res.status(400).json({ message: 'Entry text is required.' });
     }
-
     try {
         const newEntry = await Entry.create({
             userId: req.user._id,
-            title: title || '', encryptedText,
+            title: title || '',
+            encryptedText: encrypt(text),
             images: images || [],
             tags: tags || []
         });
-
         const user = await User.findById(req.user._id);
         if (user) {
             user.lastEntryDate = new Date();
             await user.save();
         }
-
         return res.status(201).json(newEntry);
-
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-}
+};
 
 exports.getEntries = async (req, res) => {
     try {
-        const keyword = req.query.search 
+        const keyword = req.query.search
             ? { title: { $regex: req.query.search, $options: 'i' } }
             : {};
         const entries = await Entry.find({ userId: req.user._id, ...keyword })
             .select('title images tags createdAt updatedAt')
             .sort({ createdAt: -1 });
-
         res.status(200).json(entries);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch entries', error: err.message });
     }
-}
+};
 
 exports.getEntry = async (req, res) => {
     try {
         const entry = await Entry.findOne({
             _id: req.params.id,
             userId: req.user._id
-        })
-            .select('title encryptedText images tags createdAt updatedAt');
-
+        }).select('title encryptedText images tags createdAt updatedAt');
         if (!entry) {
             return res.status(404).json({ message: 'Entry not found or unauthorized' });
         }
-
-        res.status(200).json(entry);
+        const entryObj = entry.toObject();
+        entryObj.text = decrypt(entry.encryptedText);
+        delete entryObj.encryptedText;
+        res.status(200).json(entryObj);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch entry', error: err.message });
     }
-}
+};
 
 exports.updateEntry = async (req, res) => {
     try {
         const entry = await Entry.findOne({ _id: req.params.id, userId: req.user._id });
         if (!entry) return res.status(404).json({ message: 'Entry not found or unauthorized' });
-
         entry.title = req.body.title ?? entry.title;
-        entry.encryptedText = req.body.encryptedText ?? entry.encryptedText;
+        entry.encryptedText = req.body.text ? encrypt(req.body.text) : entry.encryptedText;
         entry.tags = req.body.tags ?? entry.tags;
         entry.images = req.body.images ?? entry.images;
         await entry.save();
-        res.status(200).json(entry);
+        const entryObj = entry.toObject();
+        entryObj.text = decrypt(entry.encryptedText);
+        delete entryObj.encryptedText;
+        res.status(200).json(entryObj);
     } catch (err) {
-        res.status(400).json({ message: Error.message });
+        res.status(500).json({ message: err.message });
     }
-}
+};
 
 exports.deleteEntry = async (req, res) => {
     try {
         const entry = await Entry.findOne({ _id: req.params.id, userId: req.user._id });
-        if (!entry) return res.status(404).json({ message: "Entry not found!" });
-
+        if (!entry) return res.status(404).json({ message: 'Entry not found!' });
         await entry.deleteOne();
-        res.status(200).json("Entry deleted successfully!");
+        res.status(200).json({ message: 'Entry deleted successfully' });
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(500).json({ message: err.message });
     }
-}
+};

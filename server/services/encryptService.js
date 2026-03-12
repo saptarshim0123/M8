@@ -21,16 +21,16 @@ exports.encrypt = (text) => {
 };
 
 exports.decrypt = (hash) => {
-    const [ivHex, authTagHex, encryptedText] = hash.split(':');
-    
-    const iv = Buffer.from(ivHex, 'hex');
-    const authTag = Buffer.from(authTagHex, 'hex');
-    const decipher = crypto.createDecipheriv(ALGORITHM, KEY, iv);
-    
-    decipher.setAuthTag(authTag);
-    
-    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    
-    return decrypted;
+    try {
+        const [ivHex, authTagHex, encryptedText] = hash.split(':');
+        const iv = Buffer.from(ivHex, 'hex');
+        const authTag = Buffer.from(authTagHex, 'hex');
+        const decipher = crypto.createDecipheriv(ALGORITHM, KEY, iv);
+        decipher.setAuthTag(authTag);
+        let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    } catch (err) {
+        throw new Error('Decryption failed: data may be tampered or corrupted');
+    }
 };
