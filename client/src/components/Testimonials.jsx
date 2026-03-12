@@ -32,9 +32,9 @@ const Testimonials = () => {
     return (
         <section className="py-24 px-4 bg-neutral rounded-t-[2.5rem]">
             <div className="max-w-6xl mx-auto">
-                <p className="font-sans text-xs font-semibold text-primary/80 uppercase tracking-widest mb-3">Testimonials</p>
+                <p className="font-sans text-xs font-semibold text-secondary/80 uppercase tracking-widest mb-3">Testimonials</p>
                 <h2 className="font-heading text-4xl md:text-5xl font-black text-neutral-content tracking-tight leading-tight mb-14">
-                    People who found their <em className="text-primary not-italic">balance</em>
+                    People who found their <em className="text-accent not-italic">balance</em>
                 </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -45,7 +45,7 @@ const Testimonials = () => {
                         >
                             <div className="flex gap-0.5">
                                 {Array.from({ length: stars }).map((_, i) => (
-                                    <span key={i} className="text-primary text-sm">★</span>
+                                    <span key={i} className="text-primary text-sm">⭐</span>
                                 ))}
                             </div>
 

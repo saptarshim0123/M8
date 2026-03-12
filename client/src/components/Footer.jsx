@@ -19,9 +19,9 @@ const Footer = () => {
             <div className="max-w-6xl mx-auto">
 
                 {/* CTA banner */}
-                <div className="bg-primary/10 border border-primary/20 rounded-3xl p-10 mb-16 text-center">
+                <div className="bg-white/10 border border-primary/20 rounded-3xl p-10 mb-16 text-center">
                     <h2 className="font-heading text-4xl md:text-5xl font-black text-neutral-content tracking-tight mb-4">
-                        Your mind deserves a <em className="text-primary not-italic">quiet place.</em>
+                        Your mind deserves a <em className="text-accent not-italic">quiet place.</em>
                     </h2>
                     <p className="font-sans text-base text-neutral-content/60 mb-8 max-w-md mx-auto leading-relaxed">
                         Join thousands already building a more mindful relationship with themselves. Free forever to start.

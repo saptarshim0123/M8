@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @plugin "daisyui" {
 	themes:
-		retro --default,
-		dark --prefersdark;
+		light --default,
+		dark --prefersdark,
+		retro;
 }
 
 @theme {
@@ -10,4 +11,20 @@
 	--font-heading: "Fraunces", serif;
 	--font-handwriting: "Caveat", cursive;
 	--font-data: "Space Grotesk", sans-serif;
+}
+
+[data-theme="retro"] {
+	--color-primary: oklch(36.711% 0.08755 58.31);
+	--color-secondary: oklch(62% 0.06 58.31);
+	--color-accent: oklch(72% 0.09 85);
+	--color-neutral: oklch(25% 0.04 58.31);
+	--color-info: oklch(45% 0.07 200);
+	--color-success: oklch(55% 0.09 145);
+	--color-warning: oklch(55% 0.1 30);
+	--color-error: oklch(45% 0.08 15);
+	--color-primary-content: oklch(95% 0.03 58.31);
+	--color-secondary-content: oklch(20% 0.04 58.31);
+	--color-accent-content: oklch(20% 0.04 85);
+	--color-neutral-content: oklch(92% 0.02 58.31);
+	--color-dark-brown: #3e2723;
 }
