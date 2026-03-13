@@ -100,16 +100,14 @@ const Hero = () => {
                     {/* Floating mini chart */}
                     <div className="absolute bottom-10 -left-4 bg-base-100 rounded-2xl shadow-xl p-4 z-10 border border-base-content/5">
                         <p className="font-data text-xs text-neutral/50 font-medium mb-3">This week's mood</p>
-                        <div className="flex items-end gap-1 h-10">
-                            {[30, 55, 45, 70, 50, 65, 72].map((h, i) => (
-                                <div
-                                    key={i}
-                                    className="w-2 rounded-t-sm transition-all"
-                                    style={{
-                                        height: `${h}%`,
-                                        background: h > 60 ? 'hsl(var(--p))' : h > 45 ? 'hsl(var(--p)/0.5)' : 'hsl(var(--p)/0.2)'
-                                    }}
-                                />
+                        <div className="flex items-end gap-1.5 mt-6 h-10">
+                            {[35, 55, 70, 50, 85, 60, 90, 65, 80].map((h, i) => (
+                                <div key={i} className="flex-1 h-full flex flex-col justify-end">
+                                    <div
+                                        className={`rounded-t-md w-full ${h > 70 ? 'bg-primary' : h > 50 ? 'bg-primary/50' : 'bg-primary/20'}`}
+                                        style={{ height: `${h}%` }}
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 const Navbar = ({ onFeaturesClick, onHowItWorksClick }) => {
     return (
         <div className="navbar sticky top-0 z-50 bg-base-100/85 backdrop-blur-md shadow-sm border-b border-base-content/5">
@@ -22,12 +24,16 @@ const Navbar = ({ onFeaturesClick, onHowItWorksClick }) => {
                 </ul>
             </div>
             <div className="navbar-end gap-2">
-                <button className="btn btn-ghost btn-sm rounded-full font-sans font-medium text-sm hidden sm:flex">
-                    Login
-                </button>
-                <button className="btn btn-primary btn-sm rounded-full font-sans font-semibold text-sm shadow-md shadow-primary/30">
-                    Get started free
-                </button>
+                <Link to="/login">
+                    <button className="btn btn-ghost btn-sm rounded-full font-sans font-medium text-sm sm:flex">
+                        Login
+                    </button>
+                </Link>
+                <Link to="/register">
+                    <button className="btn btn-primary btn-sm rounded-full font-sans font-semibold text-sm shadow-md shadow-primary/30">
+                        Get started free
+                    </button>
+                </Link>
             </div>
         </div>
     );

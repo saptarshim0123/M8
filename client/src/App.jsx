@@ -1,18 +1,22 @@
-import './App.css'
+import './App.css';
 import { Routes, Route } from 'react-router-dom';
-import Landing from './pages/Landing'
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Home from './pages/Home';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
 
   return (
     <>
       <div className="App">
-        
+        <Toaster position="top-center" reverseOrder={false} />
         <Routes>
-          {/* This makes Landing the home page (at path "/") */}
           <Route path="/" element={<Landing />} />
-          {/* Example of adding other routes later */}
-          {/* <Route path="/login" element={<Login />} /> */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/home" element={<Home />} />
         </Routes>
       </div>
     </>
