@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authAPI";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,7 +17,6 @@ const Login = () => {
     });
 
     const onSubmit = async (data) => {
-        
         try {
             const res = await loginUser(data);
             localStorage.setItem('user', JSON.stringify(res.data));

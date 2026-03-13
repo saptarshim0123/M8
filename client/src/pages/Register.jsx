@@ -11,8 +11,15 @@ const schema = z.object({
         .min(6, 'Password must be at least 6 characters')
         .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
         .regex(/[0-9]/, "Password must contain at least one number")
-        .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character")
-})
+        .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+    confirmPassword: z.string(),
+}).refine(
+    (data) => data.password === data.confirmPassword,
+    {
+        message: "Passwords don't match",
+        path: ['confirmPassword']  // which field gets the error
+    }
+)
 
 const Register = () => {
     const navigate = useNavigate();
@@ -58,6 +65,10 @@ const Register = () => {
                     <label className="label">Password</label>
                     <input {...register("password")} type="password" className="input" placeholder="Password" />
                     {errors.password && <span>{errors.password.message}</span>}
+
+                    <label className="label">Confirm Password</label>
+                    <input {...register("confirmPassword")} type="password" className="input" placeholder="Password" />
+                    {errors.confirmPassword && <span>{errors.confirmPassword.message}</span>}
 
                     <Link to="/login"><small className="text-sm underline">Existing user? Login instead!</small></Link>
 
