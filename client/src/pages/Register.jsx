@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { registerUser } from "../api/authAPI";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 const schema = z.object({
     name: z.string().min(2, "Name is too short").max(20, "Name can't be more than 20 characters"),
@@ -17,26 +19,27 @@ const schema = z.object({
     (data) => data.password === data.confirmPassword,
     {
         message: "Passwords don't match",
-        path: ['confirmPassword']  // which field gets the error
+        path: ['confirmPassword']
     }
 )
 
 const Register = () => {
     const navigate = useNavigate();
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
     });
+
+    const { login } = useAuth()
 
     const onSubmit = async (data) => {
         try {
             const res = await registerUser(data);
-            localStorage.setItem('user', JSON.stringify(res.data));
-            console.log("Registration success!");
-
-            navigate("/login");
+            login(res.data);
+            toast.success('Welcome to equil!')
+            navigate('/dashboard')
         } catch (err) {
-            alert(err.response?.data?.message || "Login failed");
+            toast.error(err.response?.data?.message || "Login failed");
         }
     }
 
@@ -72,7 +75,7 @@ const Register = () => {
 
                     <Link to="/login"><small className="text-sm underline">Existing user? Login instead!</small></Link>
 
-                    <button className="btn btn-neutral mt-4">Register</button>
+                    <button className="btn btn-neutral mt-4 " disabled={isSubmitting}>{isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Register'}</button>
                 </fieldset>
             </form>
         </div>

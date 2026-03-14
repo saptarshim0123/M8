@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../api/authAPI";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast'
 
 const schema = z.object({
     email: z.email('Invalid email address'),
@@ -12,19 +14,22 @@ const schema = z.object({
 const Login = () => {
     const navigate = useNavigate();
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
     });
+
+    const { login } = useAuth()
 
     const onSubmit = async (data) => {
         try {
             const res = await loginUser(data);
-            localStorage.setItem('user', JSON.stringify(res.data));
-            console.log("Login success");
+            login(res.data);
 
-            navigate("/home");
+            toast.success('Welcome back!')
+
+            navigate("/dashboard");
         } catch (err) {
-            alert(err.response?.data?.message || "Login failed");
+            toast.error(err.response?.data?.message || "Login failed");
         }
     }
 
@@ -55,8 +60,9 @@ const Login = () => {
                         <a className="text-sm underline" href="">Forgot password?</a>
                         <Link to="/register"><small className="text-sm underline" >New user? Register instead!</small></Link>
 
-                        <button className="btn btn-neutral mt-4">Login</button>
-                    </fieldset>
+                        <button className="btn btn-neutral mt-4" disabled={isSubmitting}>
+                            {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Login'}
+                        </button>                    </fieldset>
                 </form>
             </div>
         </>

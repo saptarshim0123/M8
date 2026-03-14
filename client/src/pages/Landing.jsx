@@ -4,7 +4,7 @@ import Footer from '../components/Footer'
 import Hero from '../components/Hero'
 import HowItWorks from '../components/HowItWorks'
 import Testimonials from '../components/Testimonials'
-import Navbar from '../components/LandingNavbar'
+import Navbar from '../components/Navbar'
 
 const Landing = () => {
     const featuresRef = useRef(null);
