@@ -1,10 +1,11 @@
+import { LuChartNoAxesCombined, LuHouse, LuPenLine } from "react-icons/lu";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
-	{ label: 'Home', path: '/dashboard', icon: '🏠' },
-	{ label: 'Write', path: '/write', icon: '✏️' },
-	{ label: 'Insights', path: '/insights', icon: '📊' },
+	{ label: 'Home', path: '/dashboard', icon: <LuHouse/> },
+	{ label: 'Write', path: '/write', icon: <LuPenLine/> },
+	{ label: 'Insights', path: '/insights', icon: <LuChartNoAxesCombined/> },
 ]
 
 const Sidebar = () => {
@@ -17,7 +18,7 @@ const Sidebar = () => {
 	}
 
 	return <>
-		<div className="h-screen w-56 bg-base-100 border-r border-base-content/10 flex flex-col p-4 sticky top-0">
+		<div className="h-screen w-56 bg-base-200 border-r border-base-content/10 flex flex-col p-4 sticky top-0">
 
 			{/* Logo */}
 			<div className="font-heading border-b-2 text-2xl font-black tracking-tight text-neutral mb-8 px-2">
@@ -25,7 +26,7 @@ const Sidebar = () => {
 			</div>
 
 			{/* Nav items */}
-			<nav className="flex flex-col gap-1 flex-1">
+			<nav className="flex flex-col gap-1 flex-1 font-data">
 				{navItems.map((item) => (
 					<NavLink
 						key={item.path}

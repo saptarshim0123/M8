@@ -32,7 +32,7 @@ exports.getEntries = async (req, res) => {
             ? { title: { $regex: req.query.search, $options: 'i' } }
             : {};
         const entries = await Entry.find({ userId: req.user._id, ...keyword })
-            .select('title images tags createdAt updatedAt')
+            .select('title images encryptedText tags createdAt updatedAt')
             .sort({ createdAt: -1 });
         res.status(200).json(entries);
     } catch (err) {

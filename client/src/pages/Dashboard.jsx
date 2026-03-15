@@ -1,11 +1,15 @@
-import { useAuth } from "../hooks/useAuth";
-import Sidebar from "../components/Sidebar";
+import { useAuth } from '../hooks/useAuth';
+import DashboardHeader from '../components/DashHeader';
+import StatCards from '../components/StatCards';
+import Entries from '../components/Entries';
 
 const Dashboard = () => {
-  const { user } = useAuth();
 
   return (
     <>
+    <DashboardHeader/>
+    <StatCards/>
+    <Entries/>
     </>
   )
 }
