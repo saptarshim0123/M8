@@ -27,7 +27,7 @@ const stats = [
 
 const StatCards = () => {
 	return <>
-		<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full font-data px-4">
+		<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full font-data p-4">
 			{stats.map((stat) => (
 				<div key={stat.id} className="stat bg-base-200 shadow rounded-box">
 					<div className="stat-title text-xs md:text-sm">{stat.title}</div>

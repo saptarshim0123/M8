@@ -66,9 +66,9 @@ const Entries = () => {
 								<div className="flex justify-between">
 									<h3 className="card-title">{entry.title}</h3>
 									<div>
-										<button className="btn btn-outline btn-warning" onClick={()=>document.getElementById('deleteModal').showModal()}><LuTrash2 /></button>
+										<button className="btn btn-outline btn-warning" onClick={()=>document.getElementById(`modal-${entry._id}`).showModal()}><LuTrash2 /></button>
 									</div>
-									<dialog id="deleteModal" className="modal modal-bottom sm:modal-middle">
+									<dialog id={`modal-${entry._id}`} className="modal modal-bottom sm:modal-middle">
 										<div className="modal-box">
 											<h3 className="font-bold font-data text-lg">Are you sure you wanna delete this memory?</h3>
 											<div className="modal-action">

@@ -1,5 +1,4 @@
-import { useAuth } from '../hooks/useAuth';
-import DashboardHeader from '../components/DashHeader';
+import DashHeader from '../components/DashHeader';
 import StatCards from '../components/StatCards';
 import Entries from '../components/Entries';
 
@@ -7,7 +6,7 @@ const Dashboard = () => {
 
   return (
     <>
-    <DashboardHeader/>
+    <DashHeader/>
     <StatCards/>
     <Entries/>
     </>
