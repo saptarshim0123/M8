@@ -4,7 +4,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Write from './pages/Write';
+import WriteEntry from './pages/WriteEntry';
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
@@ -29,9 +29,10 @@ function App() {
             } />
             <Route path="/write" element={
               <AppLayout>
-                <Write />
+                <WriteEntry />
               </AppLayout>
             } />
+            <Route path="/write/:id" element={<AppLayout><WriteEntry /></AppLayout>} />
           </Route>
         </Routes>
       </div>

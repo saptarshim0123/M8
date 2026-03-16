@@ -11,6 +11,7 @@
 	--font-heading: "Fraunces", serif;
 	--font-handwriting: "Caveat", cursive;
 	--font-data: "Space Grotesk", sans-serif;
+	--font-journal: "Lora", serif;
 }
 
 [data-theme="retro"] {
@@ -27,4 +28,50 @@
 	--color-accent-content: oklch(20% 0.04 85);
 	--color-neutral-content: oklch(92% 0.02 58.31);
 	--color-dark-brown: #3e2723;
+}
+
+.tiptap {
+	outline: none;
+	min-height: 400px;
+	font-family: var(--font-journal);
+	font-size: 1.1rem;
+	line-height: 1.9;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+	content: attr(data-placeholder);
+	color: oklch(70% 0.04 58);
+	pointer-events: none;
+	float: left;
+	height: 0;
+}
+
+.tiptap h1 {
+	font-size: 1.8rem;
+	font-weight: 700;
+	margin: 1rem 0 0.5rem;
+}
+.tiptap h2 {
+	font-size: 1.4rem;
+	font-weight: 600;
+	margin: 1rem 0 0.5rem;
+}
+.tiptap ul {
+	list-style-type: disc;
+	padding-left: 1.5rem;
+}
+.tiptap ol {
+	list-style-type: decimal;
+	padding-left: 1.5rem;
+}
+.tiptap blockquote {
+	border-left: 3px solid oklch(36.711% 0.08755 58.31);
+	padding-left: 1rem;
+	color: oklch(50% 0.06 58);
+	margin: 1rem 0;
+}
+.tiptap hr {
+	border: none;
+	border-top: 1px solid oklch(85% 0.03 58);
+	margin: 1.5rem 0;
 }
