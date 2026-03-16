@@ -1,10 +1,11 @@
+import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuUser } from "react-icons/lu";
 import { NavLink } from 'react-router-dom'
 
 const navItems = [
-    { label: 'Home', path: '/dashboard', icon: '🏠' },
-    { label: 'Write', path: '/write', icon: '✏️' },
-    { label: 'Insights', path: '/insights', icon: '📊' },
-    { label: 'Profile', path: '/profile', icon: '👤' },
+    { label: 'Home', path: '/dashboard', icon: <LuHouse/> },
+    { label: 'Write', path: '/write', icon: <LuPenLine/> },
+    { label: 'Insights', path: '/insights', icon: <LuChartNoAxesCombined/> },
+    { label: 'Profile', path: '/profile', icon: <LuUser/> },
 ]
 
 const BottomNav = () => {

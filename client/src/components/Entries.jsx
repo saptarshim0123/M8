@@ -130,7 +130,10 @@ const Entries = () => {
 										<h3 className="font-bold font-data text-lg">Are you sure you wanna delete this memory?</h3>
 										<div className="modal-action">
 											<form method="dialog" className="flex gap-2">
-												<button className="btn btn-warning" onClick={() => handleDelete(entry._id)}>Delete</button>
+												<button className="btn btn-warning" 
+												onClick={() => {
+												navigate('/dashboard');
+												handleDelete(entry._id)}}>Delete</button>
 												<button className="btn">Close</button>
 											</form>
 										</div>
