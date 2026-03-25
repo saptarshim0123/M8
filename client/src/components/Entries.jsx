@@ -27,7 +27,6 @@ const Entries = () => {
 	}, [])
 
 	const handleDelete = async (id) => {
-
 		const originalEntries = [...entries];
 		setEntries(entries.filter(entry => entry._id !== id));
 
@@ -130,11 +129,17 @@ const Entries = () => {
 										<h3 className="font-bold font-data text-lg">Are you sure you wanna delete this memory?</h3>
 										<div className="modal-action">
 											<form method="dialog" className="flex gap-2">
-												<button className="btn btn-warning" 
-												onClick={() => {
-												navigate('/dashboard');
-												handleDelete(entry._id)}}>Delete</button>
-												<button className="btn">Close</button>
+												<button className="btn btn-warning"
+													onClick={(e) => {
+														e.stopPropagation()
+														handleDelete(entry._id)
+														document.getElementById(`modal-${entry._id}`).close()
+														navigate('/dashboard')
+													}}>Delete</button>
+												<button className="btn" onClick={(e) => {
+													e.stopPropagation()
+													document.getElementById(`modal-${entry._id}`).close()
+												}}>Close</button>
 											</form>
 										</div>
 									</div>

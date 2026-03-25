@@ -12,8 +12,9 @@ const AppLayout = ({ children }) => {
             <main className="flex-1 pb-20 md:pb-0">
                 {children}
             </main>
-
-            <BottomNav />
+            <div className="md:hidden">
+                <BottomNav />
+            </div>
 
         </div>
     )

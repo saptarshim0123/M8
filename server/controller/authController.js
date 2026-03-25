@@ -15,7 +15,6 @@ exports.registerUser = async (req, res) => {
             password,
         });
 
-        // Sending res back with token
         if (user) {
             res.status(201).json({
                 _id: user._id,
@@ -53,7 +52,6 @@ exports.loginUser = async (req, res) => {
 };
 
 exports.getUserProfile = async (req, res) => {
-    // req.user is populated by the protect middleware
     if (req.user) {
         res.json({
             _id: req.user._id,

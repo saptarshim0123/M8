@@ -13,15 +13,12 @@ api.interceptors.request.use((config) => {
     return config;
 })
 
-api.interceptors.response.use(
-    (res) => res,
-    (err) => {
-        if (err.res?.status === 401) {
-            localStorage.removeItem('user')
-            window.location.href = '/login'
-        }
-        return Promise.reject(err)
+api.interceptors.response.use((res) => res, (err) => {
+    if (err.res?.status === 401) {
+        localStorage.removeItem('user')
+        window.location.href = '/login'
     }
-)
+    return Promise.reject(err)
+})
 
 export default api

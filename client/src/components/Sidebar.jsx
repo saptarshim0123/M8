@@ -13,19 +13,17 @@ const Sidebar = () => {
 	const navigate = useNavigate();
 
 	const handleLogout = () => {
-		logout()
-		navigate('/')
+		logout();
+		navigate('/');
 	}
 
 	return <>
 		<div className="h-screen w-56 bg-base-200 border-r border-base-content/10 flex flex-col p-4 sticky top-0">
 
-			{/* Logo */}
 			<div className="font-heading border-b-2 text-2xl font-black tracking-tight text-neutral mb-8 px-2">
 				equil<span className="text-primary">.</span>
 			</div>
 
-			{/* Nav items */}
 			<nav className="flex flex-col gap-1 flex-1 font-data">
 				{navItems.map((item) => (
 					<NavLink
@@ -45,7 +43,6 @@ const Sidebar = () => {
 				))}
 			</nav>
 
-			{/* User Section */}
 			<div className="divider"></div>
 			<div className="flex items-center justify-center">
 				<div className="dropdown dropdown-top dropdown-center">
