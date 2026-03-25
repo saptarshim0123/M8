@@ -9,12 +9,12 @@ const Entries = () => {
 	const [entries, setEntries] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [entryToDelete, setEntryToDelete] = useState(null);
 
 	useEffect(() => {
 		const fetchEntries = async () => {
 			try {
 				const res = await getEntries();
-
 				setEntries(res.data);
 				setLoading(false)
 			} catch (err) {
@@ -24,14 +24,26 @@ const Entries = () => {
 			}
 		};
 		fetchEntries();
-	}, [])
+	}, []);
 
-	const handleDelete = async (id) => {
+	const openDelModal = (id, e) => {
+		e.stopPropagation();
+		setEntryToDelete(null);
+		document.getElementById('delete_modal').showModal();
+	};
+
+	const handleDelete = async () => {
+		if (!entryToDelete) return;
+
+		const idToDelete = entryToDelete;
 		const originalEntries = [...entries];
-		setEntries(entries.filter(entry => entry._id !== id));
+
+		setEntries(entries.filter(entry => entry._id !== idToDelete));
+		document.getElementById('delete_modal').close();
+		setEntryToDelete(null);
 
 		try {
-			await deleteEntry(id);
+			await deleteEntry(idToDelete);
 			toast.success('Deleted Successfully!')
 		} catch (err) {
 			console.error("Delete failed:", err);
@@ -40,6 +52,7 @@ const Entries = () => {
 		}
 	};
 
+	// Skeleton loading
 	if (loading) return (
 		<div className="p-4">
 			<div className="skeleton h-8 w-40 mb-4" />
@@ -81,8 +94,7 @@ const Entries = () => {
 		<div className="p-4">
 			<h2 className="text-2xl font-bold font-data mb-4">Your Entries</h2>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{
-					entries.map((entry) => (
+				{entries.map((entry) => (
 						<div key={entry._id} className="card bg-base-100 shadow-xl border overflow-hidden cursor-pointer hover:border-primary/30 transition-all" onClick={() => navigate(`/entry/${entry._id}`)}>
 							<div className="card-body">
 								<div className="flex justify-between items-start">
@@ -99,10 +111,7 @@ const Entries = () => {
 										</button>
 										<button
 											className="btn btn-outline btn-warning btn-sm"
-											onClick={(e) => {
-												e.stopPropagation()
-												document.getElementById(`modal-${entry._id}`).showModal()
-											}}
+											onClick={(e) => {openDelModal(entry._id, e)}}
 										>
 											<LuTrash2 />
 										</button>
@@ -123,30 +132,29 @@ const Entries = () => {
 										: <span className="text-xs text-neutral/30">No tags yet</span>
 									}
 								</div>
-
-								<dialog id={`modal-${entry._id}`} className="modal modal-bottom sm:modal-middle">
-									<div className="modal-box">
-										<h3 className="font-bold font-data text-lg">Are you sure you wanna delete this memory?</h3>
-										<div className="modal-action">
-											<form method="dialog" className="flex gap-2">
-												<button className="btn btn-warning"
-													onClick={(e) => {
-														e.stopPropagation()
-														handleDelete(entry._id)
-														document.getElementById(`modal-${entry._id}`).close()
-														navigate('/dashboard')
-													}}>Delete</button>
-												<button className="btn" onClick={(e) => {
-													e.stopPropagation()
-													document.getElementById(`modal-${entry._id}`).close()
-												}}>Close</button>
-											</form>
-										</div>
-									</div>
-								</dialog>
 							</div>
 						</div>
 					))}
+				<dialog id="delete_modal" className="modal modal-bottom sm:modal-middle">
+					<div className="modal-box">
+						<h3 className="font-bold font-data text-lg">Are you sure you want to delete this memory?</h3>
+						<p className="py-4 text-sm opacity-80">This action cannot be undone.</p>
+
+						<div className="modal-action">
+							<form method="dialog">
+								<button className="btn" onClick={() => setEntryToDelete(null)}>Cancel</button>
+							</form>
+
+							<button className="btn btn-error text-accent" onClick={handleDelete}>
+								Delete
+							</button>
+						</div>
+					</div>
+
+					<form method="dialog" className="modal-backdrop">
+						<button onClick={() => setEntryToDelete(null)}>close</button>
+					</form>
+				</dialog>
 			</div>
 		</div>
 	</>
