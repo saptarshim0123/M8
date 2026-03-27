@@ -2,30 +2,32 @@ const { GoogleGenerativeAI, SchemaType } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const model = genAI.getGenerativeModel({
-    model: 'gemini-3.1-flash-lite-preview',
-    generationConfig: {
-        responseMimeType: "application/json",
-    },
-});
+const MODELS = [
+    'gemini-3.1-flash-lite-preview',
+    'gemini-2.5-flash-lite',
+]
 
 const analyzeEntry = async (entry) => {
     const prompt = `
-        Role: You are a professional, empathetic mental health counselor specializing in Cognitive Behavioral Therapy (CBT).
+    Role: You are a professional, empathetic mental health counselor specializing in Cognitive Behavioral Therapy (CBT).
     Task: Analyze the user's journal entry for emotional sentiment, cognitive patterns, and safety.
     
     Journal Entry: "${entry}"
 
     Instructions:
     1. Identify the primary mood and rate its intensity (1-10).
-    2. Scan for Cognitive Distortions (e.g., Catastrophizing, All-or-Nothing thinking, Emotional Reasoning).
+    2. Scan for Cognitive Distortions.
+       - STRICT RULE: Do not flag normal venting, annoyance, or realistic complaints (e.g., complaining about heavy traffic, being tired) as cognitive distortions.
+       - Only flag recognized distortions (e.g., Catastrophizing, All-or-Nothing thinking, Emotional Reasoning) if there is undeniable clinical evidence in the text.
+       - If no distinct cognitive distortions are present, you MUST return an empty array [].
     3. Generate a response that follows the "Validation-Reflection-Support" model:
        - Validate: Acknowledge that their feeling is understandable.
        - Reflect: Paraphrase what they are going through so they feel heard.
        - Support: Offer a gentle, low-pressure encouraging thought.
     4. Provide one actionable coping tip tailored to the specific mood and context.
-    5. SAFETY CHECK: Set crisisDetected to true ONLY if there is an explicit or highly implied intent of self-harm, harm to others, or severe loss of reality.
-
+    5. SAFETY CHECK (CRITICAL OVERRIDE): Set "crisisDetected" to true ONLY if there is an actionable, immediate threat of suicide, self-harm, or violence to others. 
+       - STRICT RULE: Phrases expressing a desire to "disappear," "hide forever," "sleep forever," feeling "empty," or extreme exhaustion are common expressions of severe burnout and depression. They are NOT an immediate crisis. 
+       - You MUST output "crisisDetected": false for burnout, overwhelming stress, isolation, or passive desires to escape responsibilities.
     Return ONLY a JSON object following this exact schema:
     {
       "mood": "one of: Happy, Sad, Anxious, Angry, Neutral, Mixed",
@@ -38,16 +40,25 @@ const analyzeEntry = async (entry) => {
       "crisisDetected": boolean
     }
 `;
-    try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        return JSON.parse(text);
-    } catch (err) {
-        console.error("Gemini Error:", err);
-        throw new Error("Gemini analysis failed: " + err.message);
+    for (const modelName of MODELS) {
+        try {
+            const model = genAI.getGenerativeModel({
+                model: modelName,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                }
+            })
+            const result = await model.generateContent(prompt)
+            const text = result.response.text()
+            console.log(`Analysis done using ${modelName}`)
+            return JSON.parse(text)
+        } catch (err) {
+            console.warn(`Model ${modelName} failed: ${err.message}`)
+            continue
+        }
     }
+
+    throw new Error('All Gemini models failed. Please try again later.')
 };
 
 module.exports = { analyzeEntry };

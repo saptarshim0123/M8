@@ -8,6 +8,7 @@ import WriteEntry from './pages/WriteEntry';
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
+import ViewEntry from './pages/ViewEntry';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
               </AppLayout>
             } />
             <Route path="/write/:id" element={<AppLayout><WriteEntry /></AppLayout>} />
+            <Route path="/entry/:id" element={<AppLayout><ViewEntry /></AppLayout>} />
           </Route>
         </Routes>
       </div>

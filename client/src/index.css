@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @plugin "daisyui" {
 	themes:
 		light --default,
@@ -8,7 +9,7 @@
 
 @theme {
 	--font-sans: "DM Sans", sans-serif;
-	--font-heading: "Fraunces", serif;
+	--font-heading: "Newsreader", serif;
 	--font-handwriting: "Caveat", cursive;
 	--font-data: "Space Grotesk", sans-serif;
 	--font-journal: "Lora", serif;

@@ -23,6 +23,12 @@ exports.analyzeEntry = async (req, res) => {
 
         const plainText = decrypt(entry.encryptedText);
 
+        if (!plainText || plainText.trim().length === 0) {
+            return res.status(400).json({
+                message: 'Analysis cannot be performed on an empty entry.'
+            });
+        }
+
         const result = await analyzeEntry(plainText);
 
         const analysis = await Analysis.create({

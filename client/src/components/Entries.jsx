@@ -28,7 +28,7 @@ const Entries = () => {
 
 	const openDelModal = (id, e) => {
 		e.stopPropagation();
-		setEntryToDelete(null);
+		setEntryToDelete(id);
 		document.getElementById('delete_modal').showModal();
 	};
 
