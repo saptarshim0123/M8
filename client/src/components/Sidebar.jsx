@@ -17,6 +17,11 @@ const Sidebar = () => {
 		navigate('/');
 	}
 
+	const handleViewProfile = () => {
+		navigate('/profile');
+		document.activeElement.blur();
+	}
+
 	return <>
 		<div className="h-screen w-56 bg-base-200 border-r border-base-content/10 flex flex-col p-4 sticky top-0">
 
@@ -58,7 +63,7 @@ const Sidebar = () => {
 					</div>
 					<ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
 						<li><a onClick={handleLogout}>Log out</a></li>
-						<li><a>Item 2</a></li>
+						<li><a onClick={handleViewProfile}>View Profile</a></li>
 					</ul>
 				</div>
 			</div>

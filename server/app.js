@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/authRoutes');
 const entryRoutes = require('./routes/entryRoutes');
 const analyzeRoutes = require('./routes/analyzeRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/entries', entryRoutes);
 app.use('/api/analyze', analyzeRoutes);
+app.use('/api/user', userRoutes);
 
 app.get('/api/health', (req, res) => {
     res.send('API is working...')

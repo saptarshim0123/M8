@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import WriteEntry from './pages/WriteEntry';
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -23,18 +24,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={
-              <AppLayout>
-                <Dashboard />
-              </AppLayout>
-            } />
-            <Route path="/write" element={
-              <AppLayout>
-                <WriteEntry />
-              </AppLayout>
-            } />
+            <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
+            <Route path="/write" element={<AppLayout><WriteEntry /></AppLayout>} />
             <Route path="/write/:id" element={<AppLayout><WriteEntry /></AppLayout>} />
             <Route path="/entry/:id" element={<AppLayout><ViewEntry /></AppLayout>} />
+            <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
           </Route>
         </Routes>
       </div>

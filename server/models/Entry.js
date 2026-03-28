@@ -30,11 +30,9 @@ const entrySchema = new mongoose.Schema({
 );
 
 entrySchema.pre('findOneAndDelete', async function(next) {
-    // 'this' refers to the query being executed. We get the _id of the entry being deleted.
     const entryId = this.getQuery()['_id']; 
     
     try {
-        // We use mongoose.model('Analysis') to avoid circular dependency requires
         await mongoose.model('Analysis').deleteOne({ entryId: entryId });
         next();
     } catch (err) {

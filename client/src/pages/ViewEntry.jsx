@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { getEntry } from "../api/entryAPI";
-import { getAnalysis } from "../api/analyzeAPI";
-import { runAnalysis } from "../api/analyzeAPI";
+import { getAnalysis, runAnalysis } from "../api/analyzeAPI";
 import { useEffect, useState } from "react";
 import { LuSparkles, LuTriangleAlert, LuWandSparkles } from "react-icons/lu";
 import toast from "react-hot-toast";
@@ -79,7 +78,22 @@ const ViewEntry = () => {
 	return <>
 		<div className="w-full px-6 py-6 max-w-7xl mx-auto">
 			{/* Header / Back Button here */}
-
+			<div className="flex items-center justify-between">
+				<button
+					onClick={() => navigate(-1)}
+					className="btn btn-ghost gap-2"
+				>
+					← Back
+				</button>
+				<div className="flex gap-2">
+					<button
+						onClick={() => navigate(`/write/${entry._id}`)}
+						className="btn btn-outline btn-sm"
+					>
+						Edit
+					</button>
+				</div>
+			</div>
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
 				{/* Left Column: Entry */}
 				<div className="lg:col-span-2">
@@ -120,12 +134,12 @@ const ViewEntry = () => {
 							</div>
 						</div>
 					) : (
-						// STATE: ANALYSIS COMPLETED
+						// STATE: ANALYSIS DONE
 						<>
 							{/* Safety Banner (Only shows if crisisDetected is true) */}
 							{analysis.crisisDetected && (
 								<div className="alert alert-error shadow-sm mb-6 rounded-2xl border border-error/20 bg-error/10 text-error">
-									<LuTriangleAlert/>
+									<LuTriangleAlert />
 									<div>
 										<h3 className="font-data font-bold text-sm uppercase tracking-widest">Support is available</h3>
 										<p className="font-sans text-sm mt-1 text-base-content/80">

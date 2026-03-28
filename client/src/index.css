@@ -24,6 +24,7 @@
 	--color-success: oklch(55% 0.09 145);
 	--color-warning: oklch(55% 0.1 30);
 	--color-error: oklch(45% 0.08 15);
+	--color-error-content: oklch(95% 0.02 15);
 	--color-primary-content: oklch(95% 0.03 58.31);
 	--color-secondary-content: oklch(20% 0.04 58.31);
 	--color-accent-content: oklch(20% 0.04 85);

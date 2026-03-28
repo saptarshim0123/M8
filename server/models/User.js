@@ -63,6 +63,21 @@ userSchema.pre('save', async function (next) {
     }
 });
 
+userSchema.pre('findOneAndDelete', async function (next) {
+    const userId = this.getQuery()['_id'];
+    try {
+        const entries = await mongoose.model('Entry').find({ userId });
+        const entryIds = entries.map(e => e._id);
+
+        await mongoose.model('Analysis').deleteMany({ entryId: { $in: entryIds } });
+
+        await mongoose.model('Entry').deleteMany({ userId });
+
+    } catch (err) {
+        next(err);
+    }
+});
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

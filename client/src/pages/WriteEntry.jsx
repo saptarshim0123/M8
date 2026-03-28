@@ -92,7 +92,7 @@ const WriteEntry = () => {
                 setEntryId(id);
             }
             toast.success('Entry saved!');
-            navigate(`/analyze/${id}`);
+            navigate(`/entry/${id}`);
         } catch (err) {
             toast.error('Failed to save entry', err)
         } finally {
