@@ -10,6 +10,8 @@ import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import AppLayout from './layouts/AppLayout';
 import ViewEntry from './pages/ViewEntry';
+import ForgotPassword from './pages/ForgotPassword';
+import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 
 function App() {
 
@@ -23,6 +25,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
             <Route path="/write" element={<AppLayout><WriteEntry /></AppLayout>} />

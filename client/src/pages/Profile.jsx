@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { LuCamera, LuFolder } from 'react-icons/lu'
 import Avatar from 'boring-avatars'
 import toast from 'react-hot-toast'
 import { useAuth } from '../hooks/useAuth'
@@ -84,17 +85,87 @@ const Profile = () => {
         navigate('/')
     }
 
+    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null)
+    const fileInputRef = useRef(null)
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image must be under 5MB')
+            return
+        }
+        const reader = new FileReader()
+        reader.onloadend = () => setAvatarPreview(reader.result)
+        reader.readAsDataURL(file)
+        // TODO: upload to Cloudinary in Phase 2
+    }
+
     return (
         <div className="w-full max-w-2xl mx-auto px-6 py-8">
 
             {/* Avatar + Info */}
             <div className="flex flex-col items-center text-center mb-8">
-                <Avatar
-                    size={96}
-                    name={user?.name}
-                    variant="beam"
-                    colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']}
+
+                {/* Avatar with camera overlay */}
+                <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+
+                    {/* Show uploaded preview or boring avatar */}
+                    {avatarPreview ? (
+                        <img
+                            src={avatarPreview}
+                            alt="avatar"
+                            className="w-24 h-24 rounded-full object-cover"
+                        />
+                    ) : (
+                        <Avatar
+                            size={96}
+                            name={user?.name}
+                            variant="beam"
+                            colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']}
+                        />
+                    )}
+
+                    {/* Camera overlay on hover */}
+                    <div className="absolute inset-0 rounded-full bg-neutral/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <LuCamera className="text-white w-6 h-6" />
+                    </div>
+                </div>
+
+                {/* Hidden file input — accepts image, camera */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleFileChange}
                 />
+
+                {/* Upload options */}
+                <div className="flex gap-2 mt-3">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            fileInputRef.current.removeAttribute('capture')
+                            fileInputRef.current.click()
+                        }}
+                        className="btn btn-ghost btn-sm gap-1 font-data"
+                    >
+                        <LuFolder className="w-3 h-3" /> Gallery
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            fileInputRef.current.setAttribute('capture', 'environment')
+                            fileInputRef.current.click()
+                        }}
+                        className="btn btn-ghost btn-sm gap-1 font-data"
+                    >
+                        <LuCamera className="w-3 h-3" /> Camera
+                    </button>
+                </div>
+
                 <h1 className="font-heading text-3xl font-bold text-neutral mt-4">{user?.name}</h1>
                 <p className="font-data text-sm text-neutral/50 mt-1">{user?.email}</p>
                 {user?.bio && (
