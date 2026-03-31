@@ -51,7 +51,7 @@ exports.loginUser = async (req, res) => {
         });
         await sendOTPEmail(email, otp, 'twofa');
 
-        res.status(200).json({ message: 'OTP sent to your email', email })
+        res.status(200).json({ message: 'OTP sent to your email', email });
 
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -193,6 +193,7 @@ exports.resendOTP = async (req, res) => {
 
         res.status(200).json({ message: 'OTP resent successfully' });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Internal server error" });
+        console.log(err.message);
     }
 };

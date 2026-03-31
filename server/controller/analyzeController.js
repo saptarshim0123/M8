@@ -36,6 +36,7 @@ exports.analyzeEntry = async (req, res) => {
             userId: req.user._id,
             mood: result.mood,
             intensityScore: result.intensityScore,
+            sentimentScore: result.sentimentScore,
             aiResponse: result.aiResponse,
             copingSuggestion: result.copingSuggestion,
             distortions: result.distortions || [],
@@ -67,6 +68,17 @@ exports.getAnalysis = async (req, res) => {
         }
         res.status(200).json(analysis);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Internal server error" });
+        console.log(err.message);
     }
 };
+
+exports.getAllAnalyses = async (req, res) => {
+    try {
+        const analyses = await Analysis.find({ userId: req.user._id});
+        res.status(200).json(analyses);
+    } catch (err) {
+        res.status(500).json({ message: "Internal server error" });
+        console.log(err.message);
+    }
+}

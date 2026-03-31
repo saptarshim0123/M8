@@ -18,12 +18,12 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
         reset: 'You requested to reset your password.',
         twofa: 'Someone is trying to log in to your equil account.'
     }
-
-    await transporter.sendMail({
-        from: `"equil." <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: subjects[type],
-        html: `
+    try {
+        const info = await transporter.sendMail({
+            from: `"equil." <${process.env.GMAIL_USER}>`,
+            to: email,
+            subject: subjects[type],
+            html: `
             <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
                 <h1 style="font-size: 24px; font-weight: 700; color: #3d2b1f;">equil.</h1>
                 <p style="color: #6b7280; margin-top: 16px;">${intros[type]}</p>
@@ -39,7 +39,13 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
                 <p style="color: #9ca3af; font-size: 12px;">equil — AI-Driven Journaling with Mood & Cognitive Analysis</p>
             </div>
         `
-    });
+        });
+        console.log(`Email sent successfully to ${email}: ${info.messageId}`);
+        return { success: true, messageId: info.messageId };
+    } catch (err) {
+        console.log("ACTUAL ERROR:", err);
+        throw new Error('Failed to send verification email');
+    }
 };
 
 module.exports = { sendOTPEmail };

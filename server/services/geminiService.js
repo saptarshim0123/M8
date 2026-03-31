@@ -28,10 +28,16 @@ const analyzeEntry = async (entry) => {
     5. SAFETY CHECK (CRITICAL OVERRIDE): Set "crisisDetected" to true ONLY if there is an actionable, immediate threat of suicide, self-harm, or violence to others. 
        - STRICT RULE: Phrases expressing a desire to "disappear," "hide forever," "sleep forever," feeling "empty," or extreme exhaustion are common expressions of severe burnout and depression. They are NOT an immediate crisis. 
        - You MUST output "crisisDetected": false for burnout, overwhelming stress, isolation, or passive desires to escape responsibilities.
+    6. SENTIMENT SCORE: Provide a value between -1.0 (extremely negative) and 1.0 (extremely positive). 
+   - 0.0 is perfectly neutral.
+   - Example: "I'm so stressed and I hate this" -> -0.8
+   - Example: "Today was okay, nothing special" -> 0.1
+   - Example: "I'm so proud of my progress!" -> 0.9
     Return ONLY a JSON object following this exact schema:
     {
       "mood": "one of: Happy, Sad, Anxious, Angry, Neutral, Mixed",
       "intensityScore": number,
+      "sentimentScore": number,
       "aiResponse": "string (2-3 sentences)",
       "copingSuggestion": "string (actionable and specific)",
       "distortions": ["string array"],

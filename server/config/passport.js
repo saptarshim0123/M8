@@ -19,7 +19,7 @@ async (accessToken, refreshToken, profile, done) => {
             name: profile.displayName,
             email: profile.emails[0].value,
             avatar: profile.photos[0].value,
-            password: require('crypto').randomBytes(32).toString('hex') // random password they'll never use
+            password: require('crypto').randomBytes(32).toString('hex')
         });
 
         return done(null, user);

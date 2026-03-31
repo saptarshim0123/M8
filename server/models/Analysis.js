@@ -17,6 +17,12 @@ const analysisSchema = new mongoose.Schema({
         enum: ['Happy', 'Sad', 'Anxious', 'Angry', 'Neutral', 'Mixed'],
         required: true
     },
+    sentimentScore: {
+        type: Number,
+        min: -1,
+        max: 1,
+        required: true
+    },
     intensityScore: {
         type: Number,
         min: 1,
