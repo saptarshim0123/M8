@@ -6,7 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getEntry, createEntry, updateEntry } from '../api/entryAPI';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
-import { LuImage, LuX } from 'react-icons/lu';
+import { LuImage, LuX, LuMic, LuMicOff } from 'react-icons/lu';
 
 const ToolbarButton = ({ onClick, isActive, label }) => (
     <button
@@ -30,7 +30,9 @@ const WriteEntry = () => {
     const [imagePreviews, setImagePreviews] = useState([]);
     const [existingImages, setExistingImages] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [isListening, setIsListening] = useState(false);
     const fileInputRef = useRef(null);
+    const recognitionRef = useRef(null);
 
     const handleRemoveImage = async (indexToRemove) => {
         const newImages = existingImages.filter((_, idx) => idx !== indexToRemove);
@@ -130,6 +132,72 @@ const WriteEntry = () => {
             autosave(editor.getHTML());
         }
     });
+
+    useEffect(() => {
+        if (!editor) return;
+
+        if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => setIsListening(true);
+
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+                if (finalTranscript) {
+                    console.log('Transcribed:', finalTranscript);
+                    editor.chain().focus().insertContent(finalTranscript.trim() + ' ').run();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'not-allowed') {
+                    toast.error('Microphone access denied');
+                }
+                setIsListening(false);
+            };
+
+            recognition.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current = recognition;
+        }
+
+        return () => {
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) { }
+            }
+        };
+    }, [editor]);
+
+    const toggleListening = () => {
+        if (!recognitionRef.current) {
+            toast.error('Speech recognition is not supported in this browser.');
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current.stop();
+        } else {
+            try {
+                recognitionRef.current.start();
+                toast.success('Listening... Speak now');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    };
 
     useEffect(() => {
         if (id) {
@@ -251,6 +319,15 @@ const WriteEntry = () => {
                         label="❝"
                     />
                     <div className="divider divider-horizontal mx-0"></div>
+                    <button
+                        type="button"
+                        onClick={toggleListening}
+                        className={`btn btn-md rounded-lg font-data gap-2 ${isListening ? 'btn-error text-white animate-pulse' : 'btn-ghost text-neutral/70'}`}
+                        title="Voice typing"
+                    >
+                        {isListening ? <LuMic size={18} /> : <LuMicOff size={18} />}
+                        <span className="hidden sm:inline">{isListening ? 'Listening' : 'Dictate'}</span>
+                    </button>
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}

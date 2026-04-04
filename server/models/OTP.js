@@ -11,8 +11,12 @@ const otpSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['reset', 'twofa'],
+        enum: ['reset', 'twofa', 'register'],
         required: true
+    },
+    pendingData: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
     },
     expiresAt: {
         type: Date,

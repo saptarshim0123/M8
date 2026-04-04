@@ -11,12 +11,14 @@ const transporter = nodemailer.createTransport({
 const sendOTPEmail = async (email, otp, type = 'reset') => {
     const subjects = {
         reset: 'Reset your equil password',
-        twofa: 'Your equil login verification code'
+        twofa: 'Your equil login verification code',
+        register: 'Verify your equil account'
     }
 
     const intros = {
         reset: 'You requested to reset your password.',
-        twofa: 'Someone is trying to log in to your equil account.'
+        twofa: 'Someone is trying to log in to your equil account.',
+        register: 'Welcome to equil! Please verify your email to complete registration.'
     }
     try {
         const info = await transporter.sendMail({

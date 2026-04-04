@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { LuCamera, LuFolder } from 'react-icons/lu'
+import { LuCamera, LuFolder, LuSun, LuMoon } from 'react-icons/lu'
 import Avatar from 'boring-avatars'
 import toast from 'react-hot-toast'
 import { useAuth } from '../hooks/useAuth'
+import { useTheme } from '../context/ThemeContext'
 import { updateProfile, changePassword, deleteAccount } from '../api/userAPI'
 
 const profileSchema = z.object({
@@ -30,6 +31,7 @@ const passwordSchema = z.object({
 
 const Profile = () => {
     const { user, login, logout } = useAuth()
+    const { theme, toggleTheme } = useTheme()
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState('profile')
 
@@ -327,6 +329,20 @@ const Profile = () => {
                             className="toggle toggle-primary"
                             defaultChecked={user?.weeklyDigestEnabled}
                         />
+                    </div>
+
+                    <div className="card bg-base-200 rounded-2xl p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-heading text-lg font-bold mb-1">App Theme</h3>
+                                <p className="font-sans text-sm text-neutral/60">
+                                    Switch between light and dark modes.
+                                </p>
+                            </div>
+                            <button onClick={toggleTheme} className="btn btn-circle btn-ghost bg-base-100">
+                                {theme === 'luxury' ? <LuSun size={20} /> : <LuMoon size={20} />}
+                            </button>
+                        </div>
                     </div>
 
                     <button

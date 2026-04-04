@@ -8,6 +8,7 @@ const analyzeRoutes = require('./routes/analyzeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const passport = require('./config/passport');
 const ghostRoute = require('./routes/ghostRoute');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/entries', entryRoutes);
 app.use('/api/analyze', analyzeRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get('/api/health', (req, res) => {
     res.send('API is working...')

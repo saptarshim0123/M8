@@ -13,6 +13,7 @@ import ViewEntry from './pages/ViewEntry';
 import ForgotPassword from './pages/ForgotPassword';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import Insights from './pages/Insights';
+import Chat from './pages/Chat';
 
 function App() {
 
@@ -36,6 +37,8 @@ function App() {
             <Route path="/entry/:id" element={<AppLayout><ViewEntry /></AppLayout>} />
             <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
             <Route path="/insights" element={<AppLayout><Insights /></AppLayout>} />
+            <Route path="/chat" element={<AppLayout><Chat /></AppLayout>} />
+            <Route path="/chat/:id" element={<AppLayout><Chat /></AppLayout>} />
           </Route>
           
         </Routes>

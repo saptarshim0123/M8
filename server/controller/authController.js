@@ -12,11 +12,49 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({
-            name,
+        // Don't create the user yet — send OTP for email verification first
+        const otp = crypto.randomInt(100000, 999999).toString();
+        await OTP.deleteMany({ email, type: 'register' });
+        await OTP.create({
             email,
-            password,
+            otp,
+            type: 'register',
+            pendingData: { name, email, password },
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000)
         });
+        await sendOTPEmail(email, otp, 'register');
+
+        res.status(200).json({ message: 'OTP sent to your email', email });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.verifyRegistration = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const otpRecord = await OTP.findOne({ email, otp, type: 'register' });
+        if (!otpRecord) {
+            return res.status(400).json({ message: 'Invalid or expired OTP' });
+        }
+
+        if (otpRecord.expiresAt < new Date()) {
+            await OTP.deleteOne({ _id: otpRecord._id });
+            return res.status(400).json({ message: 'OTP has expired' });
+        }
+
+        // Check again in case user was created between steps
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            await OTP.deleteOne({ _id: otpRecord._id });
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Create the user now that email is verified
+        const { name, password } = otpRecord.pendingData;
+        const user = await User.create({ name, email, password });
+
+        await OTP.deleteOne({ _id: otpRecord._id });
 
         if (user) {
             res.status(201).json({

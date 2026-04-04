@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const passport = require('../config/passport');
 const generateToken = require('../utils/generateToken');
-const { registerUser, loginUser, getUserProfile, forgotPassword, resetPassword, verify2FA, resendOTP } = require('../controller/authController');
+const { registerUser, loginUser, getUserProfile, forgotPassword, resetPassword, verify2FA, resendOTP, verifyRegistration } = require('../controller/authController');
 
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/register', registerUser);
+router.post('/verify-registration', verifyRegistration);
 router.post('/login', loginUser);
 router.get('/me', protect, getUserProfile);
 router.post('/forgot-password', forgotPassword);
