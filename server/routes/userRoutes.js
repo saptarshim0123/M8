@@ -7,9 +7,10 @@ const {
     getProfile
 } = require('../controller/userController');
 const { protect } = require('../middleware/authMiddleware');
+const { upload } = require('../middleware/uploadMiddleware');
 
 router.get('/profile', protect, getProfile);
-router.put('/profile', protect, updateProfile);
+router.put('/profile', protect, upload.single('avatar'), updateProfile);
 router.put('/password', protect, changePassword);
 router.delete('/account', protect, deleteAccount);
 

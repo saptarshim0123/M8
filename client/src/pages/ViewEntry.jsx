@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getEntry } from "../api/entryAPI";
 import { getAnalysis, runAnalysis } from "../api/analyzeAPI";
 import { useEffect, useState } from "react";
-import { LuSparkles, LuTriangleAlert, LuWandSparkles } from "react-icons/lu";
+import { LuSparkles, LuTriangleAlert, LuWandSparkles, LuX } from "react-icons/lu";
 import toast from "react-hot-toast";
 
 const ViewEntry = () => {
@@ -12,6 +12,7 @@ const ViewEntry = () => {
 	const [analysis, setAnalysis] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [analyzing, setAnalyzing] = useState(false);
+	const [selectedImage, setSelectedImage] = useState(null);
 
 	const handleRunAnalysis = async () => {
 		setAnalyzing(true);
@@ -103,6 +104,19 @@ const ViewEntry = () => {
 							weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
 						})}
 					</p>
+					{entry.images && entry.images.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                            {entry.images.map((img, i) => (
+                                <img 
+                                    key={i} 
+                                    src={img} 
+                                    alt={`entry-${i}`} 
+                                    className="w-full h-48 object-cover rounded-xl shadow-sm border border-base-content/5 cursor-zoom-in hover:opacity-90 transition-opacity" 
+                                    onClick={() => setSelectedImage(img)}
+                                />
+                            ))}
+                        </div>
+                    )}
 					<div className="prose max-w-none text-neutral font-journal" dangerouslySetInnerHTML={{ __html: entry.text }} />
 					<div className="flex flex-wrap gap-1 my-10">
 						{entry.tags?.length > 0
@@ -229,6 +243,26 @@ const ViewEntry = () => {
 					)}
 				</aside>
 			</div>
+
+            {/* Image Maximize Modal */}
+            {selectedImage && (
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 cursor-zoom-out backdrop-blur-sm transition-opacity"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <img 
+                        src={selectedImage} 
+                        alt="Enlarged" 
+                        className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
+                    />
+                    <button 
+                        className="absolute top-6 right-6 btn btn-circle btn-ghost text-white"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <LuX size={24} />
+                    </button>
+                </div>
+            )}
 		</div>
 	</>
 

@@ -3,16 +3,28 @@ const User = require('../models/User');
 const { encrypt, decrypt } = require('../services/encryptService');
 
 exports.createEntry = async (req, res) => {
-    const { title, text, images, tags } = req.body;
+    let { title, text, tags } = req.body;
     if (!text) {
         return res.status(400).json({ message: 'Entry text is required.' });
     }
+    
+    // Parse tags if sent via FormData
+    if (typeof tags === 'string') {
+        try {
+            tags = JSON.parse(tags);
+        } catch {
+            tags = tags.split(',').map(t => t.trim());
+        }
+    }
+
+    const uploadedImages = req.files ? req.files.map(file => file.path) : [];
+
     try {
         const newEntry = await Entry.create({
             userId: req.user._id,
             title: title || '',
             encryptedText: encrypt(text),
-            images: images || [],
+            images: uploadedImages,
             tags: tags || []
         });
         const user = await User.findById(req.user._id);
@@ -62,10 +74,27 @@ exports.updateEntry = async (req, res) => {
     try {
         const entry = await Entry.findOne({ _id: req.params.id, userId: req.user._id });
         if (!entry) return res.status(404).json({ message: 'Entry not found or unauthorized' });
-        entry.title = req.body.title ?? entry.title;
-        entry.encryptedText = req.body.text ? encrypt(req.body.text) : entry.encryptedText;
-        entry.tags = req.body.tags ?? entry.tags;
-        entry.images = req.body.images ?? entry.images;
+        
+        let { title, text, tags, existingImages } = req.body;
+
+        if (typeof tags === 'string') {
+            try { tags = JSON.parse(tags); } catch { tags = tags.split(',').map(t => t.trim()); }
+        }
+        
+        if (typeof existingImages === 'string') {
+            try { existingImages = JSON.parse(existingImages); } catch { existingImages = []; }
+        } else if (!existingImages) {
+            existingImages = [];
+        }
+
+        const newUploadedImages = req.files ? req.files.map(file => file.path) : [];
+        const combinedImages = [...existingImages, ...newUploadedImages];
+
+        entry.title = title ?? entry.title;
+        entry.encryptedText = text ? encrypt(text) : entry.encryptedText;
+        entry.tags = tags ?? entry.tags;
+        entry.images = combinedImages.length > 0 ? combinedImages : entry.images;
+        
         await entry.save();
         const entryObj = entry.toObject();
         entryObj.text = decrypt(entry.encryptedText);

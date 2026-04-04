@@ -6,10 +6,15 @@ const bcrypt = require('bcryptjs');
 exports.updateProfile = async (req, res) => {
     try {
         const { name, bio, age } = req.body;
+        
+        const updateData = { name, bio, age };
+        if (req.file) {
+            updateData.avatar = req.file.path;
+        }
 
         const user = await User.findByIdAndUpdate(
             req.user._id,
-            { name, bio, age },
+            updateData,
             { new: true, runValidators: true }
         ).select('-password');
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { getAllAnalyses } from '../api/analyzeAPI';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell,
   BarChart, Bar
 } from 'recharts';
@@ -33,7 +33,9 @@ const Insights = () => {
         mostFrequentMood, 
         trendData, 
         moodDistribution, 
-        topDistortions 
+        topDistortions,
+        topKeywords,
+        copingStrategies
     } = useMemo(() => {
         if (!insights || insights.length === 0) {
             return {
@@ -41,7 +43,9 @@ const Insights = () => {
                 mostFrequentMood: 'N/A',
                 trendData: [],
                 moodDistribution: [],
-                topDistortions: []
+                topDistortions: [],
+                topKeywords: [],
+                copingStrategies: []
             };
         }
 
@@ -52,8 +56,10 @@ const Insights = () => {
         let validSentimentCount = 0;
         const moodCounts = {};
         const distortionCounts = {};
+        const timelineGrouped = {};
+        const keywordCounts = {};
 
-        const timelineData = sorted.map((entry) => {
+        sorted.forEach((entry) => {
             // Sentiment
             const sentiment = Number(entry.sentimentScore);
             if (!isNaN(sentiment)) {
@@ -73,17 +79,41 @@ const Insights = () => {
                 });
             }
 
-            // Create short date
+            // Keyword Counts
+            if (entry.keywords && Array.isArray(entry.keywords)) {
+                entry.keywords.forEach(kw => {
+                    if (!kw) return;
+                    const lowerKw = kw.toLowerCase().trim();
+                    if (lowerKw) keywordCounts[lowerKw] = (keywordCounts[lowerKw] || 0) + 1;
+                });
+            } else if (entry.tags && Array.isArray(entry.tags)) { // Fallback to tags
+                entry.tags.forEach(tag => {
+                    if (!tag) return;
+                    const lowerTag = tag.toLowerCase().trim();
+                    if (lowerTag) keywordCounts[lowerTag] = (keywordCounts[lowerTag] || 0) + 1;
+                });
+            }
             const dateObj = new Date(entry.createdAt || entry.date);
             const shortDate = 
                 !isNaN(dateObj.getTime()) 
                 ? `${dateObj.getMonth() + 1}/${dateObj.getDate()}` 
                 : 'Invalid';
 
+            if (!timelineGrouped[shortDate]) {
+                timelineGrouped[shortDate] = { sentimentSum: 0, count: 0, intensity: Number(entry.intensityScore) || 0 };
+            }
+            if (!isNaN(sentiment)) {
+                timelineGrouped[shortDate].sentimentSum += sentiment;
+                timelineGrouped[shortDate].count++;
+            }
+        });
+
+        const timelineData = Object.keys(timelineGrouped).map(date => {
+            const data = timelineGrouped[date];
             return {
-                date: shortDate,
-                sentiment: isNaN(sentiment) ? 0 : sentiment,
-                intensity: Number(entry.intensityScore) || 0
+                date,
+                sentiment: data.count > 0 ? parseFloat((data.sentimentSum / data.count).toFixed(2)) : 0,
+                intensity: data.intensity
             };
         });
 
@@ -106,12 +136,30 @@ const Insights = () => {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
+        // Create top keywords
+        const topKw = Object.entries(keywordCounts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 10);
+
+        // Get recent coping strategies
+        const strategies = [];
+        const reversed = [...sorted].reverse();
+        for (const entry of reversed) {
+            if (entry.copingSuggestion && !strategies.includes(entry.copingSuggestion)) {
+                strategies.push(entry.copingSuggestion);
+            }
+            if (strategies.length >= 3) break;
+        }
+
         return {
             averageSentiment: avgSent,
             mostFrequentMood: topMood,
             trendData: timelineData,
             moodDistribution: pieData,
-            topDistortions: barData
+            topDistortions: barData,
+            topKeywords: topKw,
+            copingStrategies: strategies
         };
 
     }, [insights]);
@@ -170,10 +218,10 @@ const Insights = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Sentiment Trend */}
                         <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5 lg:col-span-2">
-                            <h2 className="text-xl font-bold mb-4 font-heading">Sentiment Timeline</h2>
+                            <h2 className="text-xl font-bold mb-4 font-heading">Sentiment & Intensity Timeline</h2>
                             <div className="h-72 w-full">
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={trendData}>
+                                    <ComposedChart data={trendData}>
                                         <defs>
                                             <linearGradient id="colorSentiment" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
@@ -182,13 +230,16 @@ const Insights = () => {
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1}/>
                                         <XAxis dataKey="date" tick={{fill: 'currentColor', opacity: 0.5}} tickLine={false} axisLine={false} />
-                                        <YAxis tick={{fill: 'currentColor', opacity: 0.5}} tickLine={false} axisLine={false} domain={[-1, 1]}/>
+                                        <YAxis yAxisId="left" tick={{fill: 'currentColor', opacity: 0.5}} tickLine={false} axisLine={false} domain={[-1, 1]}/>
+                                        <YAxis yAxisId="right" orientation="right" tick={{fill: 'currentColor', opacity: 0.5}} tickLine={false} axisLine={false} domain={[0, 10]}/>
                                         <Tooltip 
                                             contentStyle={{backgroundColor: 'oklch(var(--b1))', borderColor: 'oklch(var(--p)/0.2)', borderRadius: '12px'}}
                                             itemStyle={{color: 'currentColor'}}
                                         />
-                                        <Area type="monotone" dataKey="sentiment" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorSentiment)" />
-                                    </AreaChart>
+                                        <Legend wrapperStyle={{fontSize: '14px', paddingTop: '10px'}} />
+                                        <Area yAxisId="left" type="monotone" name="Sentiment" dataKey="sentiment" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorSentiment)" />
+                                        <Line yAxisId="right" type="monotone" name="Intensity" dataKey="intensity" stroke="#f59e0b" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6}} />
+                                    </ComposedChart>
                                 </ResponsiveContainer>
                             </div>
                         </div>
@@ -247,6 +298,37 @@ const Insights = () => {
                                     No cognitive distortions detected.
                                 </div>
                             )}
+                        </div>
+
+                        {/* Top Themes */}
+                        <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5">
+                            <h2 className="text-xl font-bold mb-4 font-heading">Top Themes</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {topKeywords.length > 0 ? topKeywords.map((kw, i) => (
+                                    <div key={i} className="badge badge-lg badge-outline border-base-content/20 text-base-content/80 capitalize py-3 px-4">
+                                        {kw.name} <span className="ml-2 opacity-50 px-1 bg-base-200 rounded-full text-xs">{kw.count}</span>
+                                    </div>
+                                )) : (
+                                    <p className="text-base-content/50">Not enough data to find themes.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Coping Strategies */}
+                        <div className="p-6 bg-primary/5 rounded-3xl shadow-sm border border-primary/20 h-full flex flex-col">
+                            <h2 className="text-xl font-bold mb-4 font-heading text-primary">Recent Coping Strategies</h2>
+                            <div className="space-y-3 flex-1">
+                                {copingStrategies.length > 0 ? copingStrategies.map((strategy, i) => (
+                                    <div key={i} className="bg-base-100/80 p-4 rounded-2xl shadow-sm text-sm text-base-content/80 border border-base-content/5">
+                                        <div className="flex gap-3">
+                                            <span className="text-xl">💡</span>
+                                            <p>"{strategy}"</p>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <p className="text-base-content/50">Journal more to receive personalized coping strategies.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -6,6 +6,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import { getEntry, createEntry, updateEntry } from '../api/entryAPI';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
+import { LuImage, LuX } from 'react-icons/lu';
 
 const ToolbarButton = ({ onClick, isActive, label }) => (
     <button
@@ -26,15 +27,87 @@ const WriteEntry = () => {
     const [lastSaved, setLastSaved] = useState(null);
     const [saving, setSaving] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [imagePreviews, setImagePreviews] = useState([]);
+    const [existingImages, setExistingImages] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const handleRemoveImage = async (indexToRemove) => {
+        const newImages = existingImages.filter((_, idx) => idx !== indexToRemove);
+        setExistingImages(newImages);
+
+        setSaving(true);
+        try {
+            if (entryId) {
+                await updateEntry(entryId, {
+                    title,
+                    text: editor?.getHTML() || '<p></p>',
+                    existingImages: newImages
+                });
+                setLastSaved(new Date());
+            }
+        } catch (err) {
+            toast.error('Failed to update images');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleImageSelection = async (e) => {
+        const files = Array.from(e.target.files);
+        if (existingImages.length + files.length > 5) {
+            toast.error('Maximum 5 images allowed');
+            return;
+        }
+        const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
+        if (validFiles.length < files.length) toast.error('Some images were skipped (over 5MB)');
+
+        if (validFiles.length === 0) return;
+
+        const previews = validFiles.map(file => URL.createObjectURL(file));
+        setImagePreviews(previews);
+
+        setSaving(true);
+        try {
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('text', editor?.getHTML() || '<p></p>');
+            formData.append('existingImages', JSON.stringify(existingImages));
+            validFiles.forEach(img => formData.append('images', img));
+
+            let currentId = entryId;
+            let result;
+            if (currentId) {
+                const res = await updateEntry(currentId, formData);
+                result = res.data;
+            } else {
+                const res = await createEntry(formData);
+                currentId = res.data._id;
+                setEntryId(currentId);
+                result = res.data;
+            }
+
+            setExistingImages(result.images || []);
+            setLastSaved(new Date());
+            toast.success('Images uploaded securely');
+        } catch (err) {
+            console.error('Image upload failed', err);
+            toast.error('Image upload failed');
+        } finally {
+            setSaving(false);
+            setImagePreviews([]);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
 
     const autosave = useDebouncedCallback(async (content) => {
         if (!content || content === '<p></p>') return;
         setSaving(true);
         try {
             if (entryId) {
-                await updateEntry(entryId, { title, text: content });
+                await updateEntry(entryId, { title, text: content, existingImages });
             } else {
-                const res = await createEntry({ title, text: content });
+                const res = await createEntry({ title, text: content, existingImages });
                 setEntryId(res.data._id);
             }
             setLastSaved(new Date());
@@ -65,6 +138,7 @@ const WriteEntry = () => {
                     const res = await getEntry(id);
                     setTitle(res.data.title);
                     setEntryId(id);
+                    setExistingImages(res.data.images || []);
                     editor?.commands.setContent(res.data.text);
                 } catch (err) {
                     toast.error('Failed to load entry', err)
@@ -75,7 +149,6 @@ const WriteEntry = () => {
     }, [id, editor])
 
     const handleSaveAndAnalyze = async () => {
-        // TODO: Move navigate path to analyze
         const content = editor?.getHTML();
         if (!content || content === '<p></p>') {
             toast.error('Write something before saving!');
@@ -83,16 +156,16 @@ const WriteEntry = () => {
         }
         setSubmitting(true);
         try {
-            let id = entryId;
-            if (id) {
-                await updateEntry(entryId, { title, text: content });
+            let currentId = entryId;
+            if (currentId) {
+                await updateEntry(currentId, { title, text: content, existingImages });
             } else {
-                const res = await createEntry({ title, text: content });
-                id = res.data._id;
-                setEntryId(id);
+                const res = await createEntry({ title, text: content, existingImages });
+                currentId = res.data._id;
+                setEntryId(currentId);
             }
             toast.success('Entry saved!');
-            navigate(`/entry/${id}`);
+            navigate(`/entry/${currentId}`);
         } catch (err) {
             toast.error('Failed to save entry', err)
         } finally {
@@ -138,7 +211,7 @@ const WriteEntry = () => {
                 className="font-heading text-2xl font-bold bg-transparent border-none outline-none w-full mb-4 placeholder:text-neutral/30"
             />
 
-            <div className="bg-base-100 rounded-2xl border border-base-content/10 ">
+            <div className="bg-base-100 rounded-2xl border border-base-content/10 flex flex-col">
 
                 {/* Toolbar */}
                 <div className="flex flex-wrap gap-1 p-3 border-b border-base-content/10">
@@ -177,13 +250,76 @@ const WriteEntry = () => {
                         isActive={editor?.isActive('blockquote')}
                         label="❝"
                     />
+                    <div className="divider divider-horizontal mx-0"></div>
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="btn btn-md btn-ghost rounded-lg font-data gap-2 text-neutral/70"
+                    >
+                        <LuImage size={18} /> Add Images
+                    </button>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageSelection}
+                        className="hidden"
+                    />
                 </div>
 
                 {/* Editor */}
-                <div className="p-4 text-neutral">
+                <div className="p-4 text-neutral min-h-[150px]">
                     <EditorContent editor={editor} />
                 </div>
+
+                {/* Bottom Images Gallery */}
+                {(existingImages.length > 0 || imagePreviews.length > 0) && (
+                    <div className="p-4 border-t border-base-content/10 bg-base-200/20 rounded-b-2xl">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {existingImages.map((imgUrl, i) => (
+                                <div
+                                    key={`existing-${i}`}
+                                    className="relative aspect-[4/3] group cursor-zoom-in"
+                                    onClick={() => setSelectedImage(imgUrl)}
+                                >
+                                    <img src={imgUrl} alt="uploaded" className="h-full w-full object-cover rounded-xl border border-base-content/10 shadow-sm transition-transform duration-300 group-hover:scale-[1.02]" />
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleRemoveImage(i); }}
+                                        className="absolute top-2 right-2 bg-base-100 rounded-full p-2 shadow-md border border-base-content/10 hover:bg-error hover:text-white transition-colors"
+                                    ><LuX size={14} /></button>
+                                </div>
+                            ))}
+                            {imagePreviews.map((previewUrl, i) => (
+                                <div key={`new-${i}`} className="relative aspect-[4/3] group opacity-60 flex items-center justify-center bg-base-200 rounded-xl border border-base-content/10">
+                                    <img src={previewUrl} alt="preview" className="absolute inset-0 h-full w-full object-cover rounded-xl mix-blend-overlay" />
+                                    <span className="loading loading-spinner text-primary z-10" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Image Maximize Modal */}
+            {selectedImage && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 cursor-zoom-out backdrop-blur-sm transition-opacity"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <img
+                        src={selectedImage}
+                        alt="Enlarged"
+                        className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+                    />
+                    <button
+                        className="absolute top-6 right-6 btn btn-circle btn-ghost text-white"
+                        onClick={() => setSelectedImage(null)}
+                    >
+                        <LuX size={24} />
+                    </button>
+                </div>
+            )}
         </div>
     )
 }

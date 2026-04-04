@@ -48,8 +48,18 @@ const Profile = () => {
 
     const onProfileSubmit = async (data) => {
         try {
-            const res = await updateProfile(data)
+            const formData = new FormData()
+            formData.append('name', data.name)
+            formData.append('bio', data.bio || '')
+            if(data.age) formData.append('age', data.age)
+            
+            if (avatarFile) {
+                formData.append('avatar', avatarFile)
+            }
+
+            const res = await updateProfile(formData)
             login({ ...user, ...res.data })
+            setAvatarFile(null)
             toast.success('Profile updated!')
         } catch (err) {
             toast.error(err.response?.data?.message || 'Update failed')
@@ -86,6 +96,7 @@ const Profile = () => {
     }
 
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null)
+    const [avatarFile, setAvatarFile] = useState(null)
     const fileInputRef = useRef(null)
 
     const handleFileChange = (e) => {
@@ -95,10 +106,10 @@ const Profile = () => {
             toast.error('Image must be under 5MB')
             return
         }
+        setAvatarFile(file)
         const reader = new FileReader()
         reader.onloadend = () => setAvatarPreview(reader.result)
         reader.readAsDataURL(file)
-        // TODO: upload to Cloudinary in Phase 2
     }
 
     return (
