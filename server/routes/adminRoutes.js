@@ -8,6 +8,9 @@ const {
     getAggregatedInsights,
     getUsers,
     deleteUser,
+    getPendingTherapists,
+    verifyTherapist,
+    rejectTherapist,
 } = require('../controller/adminController');
 
 router.get('/stats', adminProtect, getStats);
@@ -16,5 +19,9 @@ router.get('/user-deletions', adminProtect, getDeletedUsers);
 router.get('/insights', adminProtect, getAggregatedInsights);
 router.get('/users', adminProtect, getUsers);
 router.delete('/users/:id', adminProtect, deleteUser);
+router.get('/pending-therapists', adminProtect, getPendingTherapists);
+router.put('/verify-therapist/:id', adminProtect, verifyTherapist);
+router.delete('/reject-therapist/:id', adminProtect, rejectTherapist);
 
 module.exports = router;
+

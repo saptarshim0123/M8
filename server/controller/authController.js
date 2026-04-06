@@ -5,11 +5,17 @@ const { sendOTPEmail } = require('../services/emailService');
 const crypto = require('crypto');
 
 exports.registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role, licenseNumber, specialization } = req.body;
+    const documentUrl = req.file ? req.file.path : '';
     try {
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
+        }
+
+        // Validate therapist-specific fields
+        if (role === 'therapist' && !licenseNumber) {
+            return res.status(400).json({ message: 'License number is required for therapists' });
         }
 
         // Don't create the user yet — send OTP for email verification first
@@ -19,7 +25,7 @@ exports.registerUser = async (req, res) => {
             email,
             otp,
             type: 'register',
-            pendingData: { name, email, password },
+            pendingData: { name, email, password, role: role || 'user', licenseNumber, specialization, documentUrl },
             expiresAt: new Date(Date.now() + 10 * 60 * 1000)
         });
         await sendOTPEmail(email, otp, 'register');
@@ -51,19 +57,35 @@ exports.verifyRegistration = async (req, res) => {
         }
 
         // Create the user now that email is verified
-        const { name, password } = otpRecord.pendingData;
-        const user = await User.create({ name, email, password });
+        const { name, password, role, licenseNumber, specialization, documentUrl } = otpRecord.pendingData;
+        const userData = { name, email, password };
+
+        if (role === 'therapist') {
+            userData.role = 'therapist';
+            userData.licenseNumber = licenseNumber || '';
+            userData.specialization = specialization || '';
+            userData.documentUrl = documentUrl || '';
+            userData.isVerified = false;
+        }
+
+        const user = await User.create(userData);
 
         await OTP.deleteOne({ _id: otpRecord._id });
 
         if (user) {
-            res.status(201).json({
+            const responseData = {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
                 token: generateToken(user._id),
-            });
+            };
+
+            if (user.role === 'therapist') {
+                responseData.isVerified = user.isVerified;
+            }
+
+            res.status(201).json(responseData);
         } else {
             res.status(400).json({ message: 'Invalid user data!' });
         }
@@ -99,7 +121,7 @@ exports.loginUser = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
     if (req.user) {
-        res.json({
+        const profile = {
             _id: req.user._id,
             name: req.user.name,
             email: req.user.email,
@@ -109,8 +131,18 @@ exports.getUserProfile = async (req, res) => {
             longestStreak: req.user.longestStreak,
             lastEntryDate: req.user.lastEntryDate,
             weeklyDigestEnabled: req.user.weeklyDigestEnabled,
-            role: req.user.role
-        });
+            role: req.user.role,
+            shareRawJournals: req.user.shareRawJournals,
+        };
+
+        if (req.user.role === 'therapist') {
+            profile.isVerified = req.user.isVerified;
+            profile.practiceCode = req.user.practiceCode;
+            profile.specialization = req.user.specialization;
+            profile.licenseNumber = req.user.licenseNumber;
+        }
+
+        res.json(profile);
     } else {
         res.status(404).json({ message: 'User not found' });
     }
@@ -201,13 +233,20 @@ exports.verify2FA = async (req, res) => {
 
         await OTP.deleteOne({ _id: otpRecord._id });
 
-        res.status(200).json({
+        const responseData = {
             _id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
             token: generateToken(user._id)
-        });
+        };
+
+        if (user.role === 'therapist') {
+            responseData.isVerified = user.isVerified;
+            responseData.practiceCode = user.practiceCode;
+        }
+
+        res.status(200).json(responseData);
 
     } catch (err) {
         res.status(500).json({ message: err.message });

@@ -6,6 +6,9 @@ import {
     getAggregatedInsights,
     getAdminUsers,
     adminDeleteUser,
+    getPendingTherapists,
+    verifyTherapist,
+    rejectTherapist,
 } from '../api/adminAPI';
 import {
     AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -13,7 +16,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { LuUsers, LuBookOpen, LuBrainCircuit, LuLogOut, LuLayoutDashboard, LuTrash2 } from 'react-icons/lu';
+import { LuUsers, LuBookOpen, LuBrainCircuit, LuLogOut, LuLayoutDashboard, LuTrash2, LuStethoscope, LuCheck, LuX, LuExternalLink } from 'react-icons/lu';
 import toast from 'react-hot-toast';
 
 const MOOD_COLORS = {
@@ -72,6 +75,8 @@ const AdminDashboard = () => {
     const [loadingInsights, setLoadingInsights] = useState(true);
     const [loadingUsers, setLoadingUsers] = useState(true);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [pendingTherapists, setPendingTherapists] = useState([]);
+    const [loadingTherapists, setLoadingTherapists] = useState(true);
 
     useEffect(() => {
         getAdminStats()
@@ -85,6 +90,10 @@ const AdminDashboard = () => {
         getAdminUsers()
             .then(r => setUsers(r.data))
             .finally(() => setLoadingUsers(false));
+
+        getPendingTherapists()
+            .then(r => setPendingTherapists(r.data))
+            .finally(() => setLoadingTherapists(false));
     }, []);
 
     useEffect(() => {
@@ -150,7 +159,90 @@ const AdminDashboard = () => {
                     <StatCard icon={<LuUsers />} label="Total Users" value={stats?.totalUsers} loading={loadingStats} />
                     <StatCard icon={<LuBookOpen />} label="Total Entries" value={stats?.totalEntries} loading={loadingStats} />
                     <StatCard icon={<LuBrainCircuit />} label="Total Analyses" value={stats?.totalAnalyses} loading={loadingStats} />
+                    <StatCard icon={<LuStethoscope />} label="Pending Therapists" value={stats?.pendingTherapists} loading={loadingStats} />
                 </div>
+
+                {/* Pending Therapist Verifications */}
+                {pendingTherapists.length > 0 && (
+                    <div className="card bg-base-100 border shadow-sm border-warning/30">
+                        <div className="card-body">
+                            <h2 className="font-bold font-data text-lg flex items-center gap-2">
+                                <LuStethoscope className="text-warning" /> Pending Therapist Verifications
+                                <span className="badge badge-warning badge-sm">{pendingTherapists.length}</span>
+                            </h2>
+                            <div className="overflow-x-auto mt-2">
+                                <table className="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>License #</th>
+                                            <th>Specialization</th>
+                                            <th>Document</th>
+                                            <th>Applied</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {pendingTherapists.map(t => (
+                                            <tr key={t._id}>
+                                                <td className="font-medium">{t.name}</td>
+                                                <td className="text-neutral/60">{t.email}</td>
+                                                <td><code className="text-xs bg-base-200 px-2 py-1 rounded">{t.licenseNumber}</code></td>
+                                                <td className="text-neutral/60">{t.specialization || '—'}</td>
+                                                <td>
+                                                    {t.documentUrl ? (
+                                                        <a href={t.documentUrl} target="_blank" rel="noreferrer"
+                                                            className="btn btn-ghost btn-xs gap-1">
+                                                            <LuExternalLink size={12} /> View
+                                                        </a>
+                                                    ) : '—'}
+                                                </td>
+                                                <td className="text-neutral/60 text-xs">
+                                                    {new Date(t.createdAt).toLocaleDateString()}
+                                                </td>
+                                                <td>
+                                                    <div className="flex gap-1">
+                                                        <button
+                                                            className="btn btn-success btn-xs gap-1"
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const res = await verifyTherapist(t._id);
+                                                                    setPendingTherapists(prev => prev.filter(x => x._id !== t._id));
+                                                                    setStats(s => s ? { ...s, pendingTherapists: s.pendingTherapists - 1 } : s);
+                                                                    toast.success(`Verified! Code: ${res.data.practiceCode}`);
+                                                                } catch {
+                                                                    toast.error('Failed to verify');
+                                                                }
+                                                            }}
+                                                        >
+                                                            <LuCheck size={12} /> Verify
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-ghost btn-xs text-error gap-1"
+                                                            onClick={async () => {
+                                                                try {
+                                                                    await rejectTherapist(t._id);
+                                                                    setPendingTherapists(prev => prev.filter(x => x._id !== t._id));
+                                                                    setStats(s => s ? { ...s, pendingTherapists: s.pendingTherapists - 1 } : s);
+                                                                    toast.success('Therapist rejected');
+                                                                } catch {
+                                                                    toast.error('Failed to reject');
+                                                                }
+                                                            }}
+                                                        >
+                                                            <LuX size={12} /> Reject
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Range selector */}
                 <div className="flex items-center gap-2">

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Entry = require('../models/Entry');
 const Analysis = require('../models/Analysis');
 const DeletedUser = require('../models/DeletedUser');
+const generatePracticeCode = require('../utils/generatePracticeCode');
 
 // Helper: group documents by day for the last N days
 const groupByDay = (docs, dateField, days = 30) => {
@@ -22,12 +23,13 @@ const groupByDay = (docs, dateField, days = 30) => {
 
 exports.getStats = async (req, res) => {
     try {
-        const [totalUsers, totalEntries, totalAnalyses] = await Promise.all([
+        const [totalUsers, totalEntries, totalAnalyses, pendingTherapists] = await Promise.all([
             User.countDocuments({ role: { $ne: 'admin' } }),
             Entry.countDocuments(),
             Analysis.countDocuments(),
+            User.countDocuments({ role: 'therapist', isVerified: false }),
         ]);
-        res.json({ totalUsers, totalEntries, totalAnalyses });
+        res.json({ totalUsers, totalEntries, totalAnalyses, pendingTherapists });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -124,6 +126,46 @@ exports.deleteUser = async (req, res) => {
         if (!user) return res.status(404).json({ message: 'User not found' });
         await DeletedUser.create({ deletedAt: new Date() });
         res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// Get pending therapist verification requests
+exports.getPendingTherapists = async (req, res) => {
+    try {
+        const therapists = await User.find({ role: 'therapist', isVerified: false })
+            .select('name email licenseNumber specialization documentUrl createdAt')
+            .sort({ createdAt: -1 });
+        res.json(therapists);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// Verify a therapist
+exports.verifyTherapist = async (req, res) => {
+    try {
+        const therapist = await User.findOne({ _id: req.params.id, role: 'therapist', isVerified: false });
+        if (!therapist) return res.status(404).json({ message: 'Pending therapist not found' });
+
+        const practiceCode = await generatePracticeCode();
+        therapist.isVerified = true;
+        therapist.practiceCode = practiceCode;
+        await therapist.save();
+
+        res.json({ message: 'Therapist verified', practiceCode });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// Reject (delete) a therapist
+exports.rejectTherapist = async (req, res) => {
+    try {
+        const therapist = await User.findOneAndDelete({ _id: req.params.id, role: 'therapist', isVerified: false });
+        if (!therapist) return res.status(404).json({ message: 'Pending therapist not found' });
+        res.json({ message: 'Therapist rejected and deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

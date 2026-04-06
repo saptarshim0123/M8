@@ -46,8 +46,33 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'therapist'],
         default: 'user'
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    licenseNumber: {
+        type: String,
+        default: ''
+    },
+    specialization: {
+        type: String,
+        default: ''
+    },
+    documentUrl: {
+        type: String,
+        default: ''
+    },
+    practiceCode: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    shareRawJournals: {
+        type: Boolean,
+        default: false
     }
 },
     {
@@ -75,8 +100,11 @@ userSchema.pre('findOneAndDelete', async function (next) {
         const entryIds = entries.map(e => e._id);
 
         await mongoose.model('Analysis').deleteMany({ entryId: { $in: entryIds } });
-
         await mongoose.model('Entry').deleteMany({ userId });
+
+        // Clean up therapist-related data
+        await mongoose.model('Connection').deleteMany({ $or: [{ userId }, { therapistId: userId }] });
+        await mongoose.model('TherapistChatRoom').deleteMany({ $or: [{ userId }, { therapistId: userId }] });
 
     } catch (err) {
         next(err);

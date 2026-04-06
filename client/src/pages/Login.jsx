@@ -47,7 +47,16 @@ const Login = () => {
             const res = await verify2FA({ email, otp: data.otp });
             login(res.data);
             toast.success('Welcome back!');
-            navigate('/dashboard');
+
+            if (res.data.role === 'therapist') {
+                if (!res.data.isVerified) {
+                    navigate('/verification-pending');
+                } else {
+                    navigate('/therapist');
+                }
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             toast.error(err.response?.data?.message || 'Invalid OTP');
         }

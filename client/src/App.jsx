@@ -16,9 +16,15 @@ import Insights from './pages/Insights';
 import Chat from './pages/Chat';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminRoute from './components/AdminRoute';
+import TherapistRoute from './components/TherapistRoute';
+import TherapistDashboard from './pages/TherapistDashboard';
+import PatientDetail from './pages/PatientDetail';
+import TherapistChat from './pages/TherapistChat';
+import ProfessionalSupport from './pages/ProfessionalSupport';
+import VerificationPending from './pages/VerificationPending';
+import TherapistProfile from './pages/TherapistProfile';
 
 function App() {
-
 
   return (
     <>
@@ -31,6 +37,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+          <Route path="/verification-pending" element={<VerificationPending />} />
           
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
@@ -41,10 +48,19 @@ function App() {
             <Route path="/insights" element={<AppLayout><Insights /></AppLayout>} />
             <Route path="/chat" element={<AppLayout><Chat /></AppLayout>} />
             <Route path="/chat/:id" element={<AppLayout><Chat /></AppLayout>} />
+            <Route path="/professional-support" element={<AppLayout><ProfessionalSupport /></AppLayout>} />
+            <Route path="/therapist-chat/:roomId" element={<TherapistChat />} />
           </Route>
 
           <Route element={<AdminRoute />}>
             <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
+
+          <Route element={<TherapistRoute />}>
+            <Route path="/therapist" element={<AppLayout><TherapistDashboard /></AppLayout>} />
+            <Route path="/therapist/patient/:userId" element={<PatientDetail />} />
+            <Route path="/therapist/chat/:roomId" element={<TherapistChat />} />
+            <Route path="/therapist/profile" element={<AppLayout><TherapistProfile /></AppLayout>} />
           </Route>
           
         </Routes>

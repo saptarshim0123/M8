@@ -16,9 +16,20 @@ const storage = new CloudinaryStorage({
   },
 });
 
+const documentStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'm8_therapist_docs',
+    allowedFormats: ['jpg', 'png', 'jpeg', 'webp', 'pdf'],
+    resource_type: 'auto',
+  },
+});
+
 const upload = multer({ storage: storage });
+const uploadDocument = multer({ storage: documentStorage });
 
 module.exports = {
   upload,
+  uploadDocument,
   cloudinary
 };

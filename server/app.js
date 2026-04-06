@@ -10,6 +10,9 @@ const passport = require('./config/passport');
 const ghostRoute = require('./routes/ghostRoute');
 const chatRoutes = require('./routes/chatRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const therapistRoutes = require('./routes/therapistRoutes');
+const connectionRoutes = require('./routes/connectionRoutes');
+const therapistChatRoutes = require('./routes/therapistChatRoutes');
 
 const app = express();
 
@@ -25,6 +28,9 @@ app.use('/api/analyze', analyzeRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/therapist', therapistRoutes);
+app.use('/api/connection', connectionRoutes);
+app.use('/api/therapist-chat', therapistChatRoutes);
 
 app.get('/api/health', (req, res) => {
     res.send('API is working...')

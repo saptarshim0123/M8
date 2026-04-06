@@ -6,9 +6,10 @@ const bcrypt = require('bcryptjs');
 
 exports.updateProfile = async (req, res) => {
     try {
-        const { name, bio, age } = req.body;
+        const { name, bio, age, specialization } = req.body;
         
         const updateData = { name, bio, age };
+        if (specialization !== undefined) updateData.specialization = specialization;
         if (req.file) {
             updateData.avatar = req.file.path;
         }

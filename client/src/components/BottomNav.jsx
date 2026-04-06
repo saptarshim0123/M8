@@ -1,16 +1,26 @@
-import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuUser, LuShieldCheck } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuUser, LuShieldCheck, LuStethoscope, LuLayoutDashboard } from "react-icons/lu";
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth';
 
-const navItems = [
+const userNavItems = [
     { label: 'Home', path: '/dashboard', icon: <LuHouse /> },
     { label: 'Write', path: '/write', icon: <LuPenLine /> },
     { label: 'Insights', path: '/insights', icon: <LuChartNoAxesCombined /> },
+    { label: 'Support', path: '/professional-support', icon: <LuStethoscope /> },
     { label: 'Profile', path: '/profile', icon: <LuUser /> },
+]
+
+const therapistNavItems = [
+    { label: 'Dashboard', path: '/therapist', icon: <LuLayoutDashboard /> },
+    { label: 'Profile', path: '/therapist/profile', icon: <LuUser /> },
 ]
 
 const BottomNav = () => {
     const { user } = useAuth();
+
+    const isTherapist = user?.role === 'therapist';
+    const navItems = isTherapist ? therapistNavItems : userNavItems;
+
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-base-100 border-t border-base-content/10 flex items-center justify-around px-2 py-2 md:hidden">
             {navItems.map((item) => (

@@ -1,14 +1,20 @@
-import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuSun, LuMoon, LuSparkles, LuShieldCheck } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuSun, LuMoon, LuSparkles, LuShieldCheck, LuStethoscope, LuUsers, LuLayoutDashboard, LuUser } from "react-icons/lu";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
 import Avatar from 'boring-avatars';
 
-const navItems = [
+const userNavItems = [
 	{ label: 'Home', path: '/dashboard', icon: <LuHouse /> },
 	{ label: 'Write', path: '/write', icon: <LuPenLine /> },
 	{ label: 'Insights', path: '/insights', icon: <LuChartNoAxesCombined /> },
-	{ label: 'Therapist', path: '/chat', icon: <LuSparkles /> },
+	{ label: 'AI Chat', path: '/chat', icon: <LuSparkles /> },
+	{ label: 'Support', path: '/professional-support', icon: <LuStethoscope /> },
+]
+
+const therapistNavItems = [
+	{ label: 'Dashboard', path: '/therapist', icon: <LuLayoutDashboard /> },
+	{ label: 'Profile', path: '/therapist/profile', icon: <LuUser /> },
 ]
 
 const Sidebar = () => {
@@ -25,6 +31,9 @@ const Sidebar = () => {
 		navigate('/profile');
 		document.activeElement.blur();
 	}
+
+	const isTherapist = user?.role === 'therapist';
+	const navItems = isTherapist ? therapistNavItems : userNavItems;
 
 	return <>
 		<div className="h-screen w-56 bg-base-200 border-r border-base-content/10 flex flex-col p-4 sticky top-0">
@@ -81,7 +90,7 @@ const Sidebar = () => {
 					</div>
 					<ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
 						<li><a onClick={handleLogout}>Log out</a></li>
-						<li><a onClick={handleViewProfile}>View Profile</a></li>
+						{!isTherapist && <li><a onClick={handleViewProfile}>View Profile</a></li>}
 						{user?.role === 'admin' && (
 							<li><a onClick={() => { navigate('/admin'); document.activeElement.blur(); }}>
 								<LuShieldCheck size={14} /> Admin Panel

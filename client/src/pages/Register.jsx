@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom"
 import { registerUser, verifyRegistration, resendOTP } from "../api/authAPI";
@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
+import { LuUpload, LuStethoscope, LuUser } from 'react-icons/lu';
 
 const schema = z.object({
     name: z.string().min(2, "Name is too short").max(20, "Name can't be more than 20 characters"),
@@ -34,6 +35,11 @@ const Register = () => {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState('');
     const [resending, setResending] = useState(false);
+    const [role, setRole] = useState('user');
+    const [licenseNumber, setLicenseNumber] = useState('');
+    const [specialization, setSpecialization] = useState('');
+    const [docFile, setDocFile] = useState(null);
+    const fileInputRef = useRef(null);
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(schema),
@@ -45,7 +51,26 @@ const Register = () => {
 
     const onSubmit = async (data) => {
         try {
-            await registerUser(data);
+            if (role === 'therapist' && !licenseNumber.trim()) {
+                toast.error('License number is required for therapists');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', data.name);
+            formData.append('email', data.email);
+            formData.append('password', data.password);
+            formData.append('role', role);
+
+            if (role === 'therapist') {
+                formData.append('licenseNumber', licenseNumber);
+                formData.append('specialization', specialization);
+                if (docFile) {
+                    formData.append('document', docFile);
+                }
+            }
+
+            await registerUser(formData);
             setEmail(data.email);
             toast.success('OTP sent to your email!');
             setStep(2);
@@ -58,8 +83,14 @@ const Register = () => {
         try {
             const res = await verifyRegistration({ email, otp: data.otp });
             login(res.data);
-            toast.success('Welcome to equil!');
-            navigate('/dashboard');
+
+            if (res.data.role === 'therapist' && !res.data.isVerified) {
+                toast.success('Account created! Awaiting admin verification.');
+                navigate('/verification-pending');
+            } else {
+                toast.success('Welcome to equil!');
+                navigate('/dashboard');
+            }
         } catch (err) {
             toast.error(err.response?.data?.message || 'Invalid OTP');
         }
@@ -94,6 +125,24 @@ const Register = () => {
                         <legend className="fieldset-legend">Register</legend>
                         <h1 className="font-heading text-2xl font-black tracking-tight text-primary pb-4">Hello There!<br></br>Welcome to, <span className="text-neutral">equil.</span></h1>
 
+                        {/* Role Selector */}
+                        <div className="flex gap-2 mb-4">
+                            <button
+                                type="button"
+                                onClick={() => setRole('user')}
+                                className={`btn btn-sm flex-1 gap-1 ${role === 'user' ? 'btn-primary' : 'btn-ghost'}`}
+                            >
+                                <LuUser size={14} /> User
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('therapist')}
+                                className={`btn btn-sm flex-1 gap-1 ${role === 'therapist' ? 'btn-primary' : 'btn-ghost'}`}
+                            >
+                                <LuStethoscope size={14} /> Therapist
+                            </button>
+                        </div>
+
                         <label className="label">Name</label>
                         <input {...register("name")} type="text" className="input" placeholder="Name" />
                         {errors.name && <span className="text-error text-xs">{errors.name.message}</span>}
@@ -110,10 +159,52 @@ const Register = () => {
                         <input {...register("confirmPassword")} type="password" className="input" placeholder="Password" />
                         {errors.confirmPassword && <span className="text-error text-xs">{errors.confirmPassword.message}</span>}
 
+                        {/* Therapist-specific fields */}
+                        {role === 'therapist' && (
+                            <div className="border border-primary/20 rounded-xl p-3 mt-3 bg-primary/5 space-y-2">
+                                <p className="text-xs font-semibold text-primary mb-1">Therapist Credentials</p>
+
+                                <label className="label text-xs">License Number *</label>
+                                <input
+                                    type="text"
+                                    value={licenseNumber}
+                                    onChange={e => setLicenseNumber(e.target.value)}
+                                    className="input input-sm w-full"
+                                    placeholder="e.g. PSY-12345"
+                                />
+
+                                <label className="label text-xs">Specialization</label>
+                                <input
+                                    type="text"
+                                    value={specialization}
+                                    onChange={e => setSpecialization(e.target.value)}
+                                    className="input input-sm w-full"
+                                    placeholder="e.g. CBT, Anxiety"
+                                />
+
+                                <label className="label text-xs">Upload License / Certificate</label>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                    onChange={e => setDocFile(e.target.files[0])}
+                                    className="file-input file-input-sm file-input-bordered w-full"
+                                />
+                                {docFile && (
+                                    <p className="text-xs text-success flex items-center gap-1">
+                                        <LuUpload size={12} /> {docFile.name}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         <Link to="/login"><small className="text-sm underline">Existing user? Login instead!</small></Link>
 
                         <button className="btn btn-neutral mt-4 " disabled={isSubmitting}>{isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Register'}</button>
-                        <div className="divider font-data text-xs">OR</div>
+
+                        {role === 'user' && (
+                            <>
+                                <div className="divider font-data text-xs">OR</div>
                                 <a href="http://localhost:3000/api/auth/google"
                                     className="btn btn-outline w-full gap-2 font-data"
                                 >
@@ -126,6 +217,8 @@ const Register = () => {
                                     </svg>
                                     Continue with Google
                                 </a>
+                            </>
+                        )}
                     </fieldset>
                 </form>
             ) : (

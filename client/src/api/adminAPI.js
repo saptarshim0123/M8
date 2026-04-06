@@ -6,3 +6,7 @@ export const getUserDeletions = (days = 30) => api.get(`/admin/user-deletions?da
 export const getAggregatedInsights = () => api.get('/admin/insights');
 export const getAdminUsers = () => api.get('/admin/users');
 export const adminDeleteUser = (id) => api.delete(`/admin/users/${id}`);
+export const getPendingTherapists = () => api.get('/admin/pending-therapists');
+export const verifyTherapist = (id) => api.put(`/admin/verify-therapist/${id}`);
+export const rejectTherapist = (id) => api.delete(`/admin/reject-therapist/${id}`);
+

@@ -67,4 +67,48 @@ const analyzeEntry = async (entry) => {
     throw new Error('All Gemini models failed. Please try again later.')
 };
 
-module.exports = { analyzeEntry };
+const generatePatientSummary = async (analyses) => {
+    const moodSummary = analyses.map(a => `${a.mood} (intensity: ${a.intensityScore}, sentiment: ${a.sentimentScore})`).join(', ');
+    const keywords = [...new Set(analyses.flatMap(a => a.keywords || []))].join(', ');
+    const distortions = [...new Set(analyses.flatMap(a => a.distortions || []))].join(', ');
+
+    const prompt = `
+    Role: You are a clinical AI assistant helping a therapist understand their patient's mental health trends.
+    Task: Based on the following aggregated data from the patient's journal analyses over the last 30 days, generate a concise 3-sentence clinical summary.
+    
+    Data:
+    - Mood readings: ${moodSummary}
+    - Common keywords/themes: ${keywords || 'None'}
+    - Cognitive distortions detected: ${distortions || 'None'}
+    - Total entries analyzed: ${analyses.length}
+    
+    Instructions:
+    1. Sentence 1: Summarize the dominant emotional patterns.
+    2. Sentence 2: Note any concerning trends or improvements.
+    3. Sentence 3: Suggest a focus area for the next session.
+    
+    Return ONLY a JSON object: { "summary": "your 3 sentences here" }
+    `;
+
+    for (const modelName of MODELS) {
+        try {
+            const model = genAI.getGenerativeModel({
+                model: modelName,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                }
+            });
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+            const parsed = JSON.parse(text);
+            return parsed.summary;
+        } catch (err) {
+            console.warn(`Model ${modelName} failed for summary: ${err.message}`);
+            continue;
+        }
+    }
+
+    throw new Error('All Gemini models failed for patient summary.');
+};
+
+module.exports = { analyzeEntry, generatePatientSummary };
