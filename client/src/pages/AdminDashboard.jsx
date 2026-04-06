@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { LuUsers, LuBookOpen, LuBrainCircuit, LuLogOut, LuLayoutDashboard, LuTrash2, LuStethoscope, LuCheck, LuX, LuExternalLink } from 'react-icons/lu';
+import { LuUsers, LuBookOpen, LuBrainCircuit, LuLogOut, LuLayoutDashboard, LuTrash2, LuStethoscope, LuCheck, LuX, LuExternalLink, LuSearch, LuFilter } from 'react-icons/lu';
 import toast from 'react-hot-toast';
 
 const MOOD_COLORS = {
@@ -77,6 +77,8 @@ const AdminDashboard = () => {
     const [userToDelete, setUserToDelete] = useState(null);
     const [pendingTherapists, setPendingTherapists] = useState([]);
     const [loadingTherapists, setLoadingTherapists] = useState(true);
+    const [searchEmail, setSearchEmail] = useState('');
+    const [roleFilter, setRoleFilter] = useState('all');
 
     useEffect(() => {
         getAdminStats()
@@ -155,10 +157,11 @@ const AdminDashboard = () => {
             <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
 
                 {/* Stat cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     <StatCard icon={<LuUsers />} label="Total Users" value={stats?.totalUsers} loading={loadingStats} />
                     <StatCard icon={<LuBookOpen />} label="Total Entries" value={stats?.totalEntries} loading={loadingStats} />
                     <StatCard icon={<LuBrainCircuit />} label="Total Analyses" value={stats?.totalAnalyses} loading={loadingStats} />
+                    <StatCard icon={<LuStethoscope />} label="Total Therapists" value={stats?.totalTherapists} loading={loadingStats} />
                     <StatCard icon={<LuStethoscope />} label="Pending Therapists" value={stats?.pendingTherapists} loading={loadingStats} />
                 </div>
 
@@ -385,59 +388,109 @@ const AdminDashboard = () => {
                 {/* Users table */}
                 <div className="card bg-base-100 border shadow-sm">
                     <div className="card-body">
-                        <h2 className="font-bold font-data text-lg">Users ({users.length})</h2>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <h2 className="font-bold font-data text-lg">Users ({users.length})</h2>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                {/* Search by email */}
+                                <div className="relative">
+                                    <LuSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral/40" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search by email…"
+                                        value={searchEmail}
+                                        onChange={e => setSearchEmail(e.target.value)}
+                                        className="input input-bordered input-sm pl-9 w-full sm:w-56"
+                                    />
+                                </div>
+                                {/* Role filter */}
+                                <div className="relative">
+                                    <LuFilter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral/40" />
+                                    <select
+                                        value={roleFilter}
+                                        onChange={e => setRoleFilter(e.target.value)}
+                                        className="select select-bordered select-sm pl-9 w-full sm:w-40"
+                                    >
+                                        <option value="all">All Roles</option>
+                                        <option value="user">Users</option>
+                                        <option value="therapist">Therapists</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         {loadingUsers ? (
                             <div className="space-y-2 mt-2">
                                 {[1,2,3].map(i => <div key={i} className="skeleton h-10 w-full" />)}
                             </div>
-                        ) : (
-                            <div className="overflow-x-auto mt-2">
-                                <table className="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Email</th>
-                                            <th>Joined</th>
-                                            <th>Streak</th>
-                                            <th>Last Entry</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {users.map(u => (
-                                            <tr key={u._id}>
-                                                <td>
-                                                    <div className="flex items-center gap-2">
-                                                        {u.avatar
-                                                            ? <img src={u.avatar} className="w-7 h-7 rounded-full object-cover" alt="" />
-                                                            : <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">{u.name?.[0]}</div>
-                                                        }
-                                                        <span className="font-medium">{u.name}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="text-neutral/60">{u.email}</td>
-                                                <td className="text-neutral/60">{new Date(u.createdAt).toLocaleDateString()}</td>
-                                                <td>{u.streak} 🔥</td>
-                                                <td className="text-neutral/60">
-                                                    {u.lastEntryDate ? new Date(u.lastEntryDate).toLocaleDateString() : '—'}
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        className="btn btn-ghost btn-xs text-error"
-                                                        onClick={() => {
-                                                            setUserToDelete(u);
-                                                            document.getElementById('admin_delete_modal').showModal();
-                                                        }}
-                                                    >
-                                                        <LuTrash2 size={14} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
+                        ) : (() => {
+                            const filtered = users.filter(u => {
+                                const matchEmail = !searchEmail || u.email.toLowerCase().includes(searchEmail.toLowerCase());
+                                const matchRole = roleFilter === 'all' || u.role === roleFilter;
+                                return matchEmail && matchRole;
+                            });
+                            return (
+                                <>
+                                    {filtered.length === 0 ? (
+                                        <p className="text-center text-neutral/40 py-8 text-sm">No users match your filters.</p>
+                                    ) : (
+                                        <div className="overflow-x-auto mt-2">
+                                            <p className="text-xs text-neutral/40 mb-2">Showing {filtered.length} of {users.length} users</p>
+                                            <table className="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>User</th>
+                                                        <th>Email</th>
+                                                        <th>Role</th>
+                                                        <th>Joined</th>
+                                                        <th>Streak</th>
+                                                        <th>Last Entry</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filtered.map(u => (
+                                                        <tr key={u._id}>
+                                                            <td>
+                                                                <div className="flex items-center gap-2">
+                                                                    {u.avatar
+                                                                        ? <img src={u.avatar} className="w-7 h-7 rounded-full object-cover" alt="" />
+                                                                        : <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">{u.name?.[0]}</div>
+                                                                    }
+                                                                    <span className="font-medium">{u.name}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="text-neutral/60">{u.email}</td>
+                                                            <td>
+                                                                <span className={`badge badge-sm ${
+                                                                    u.role === 'therapist' ? 'badge-primary' : 'badge-ghost'
+                                                                }`}>
+                                                                    {u.role === 'therapist' ? 'Therapist' : 'User'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="text-neutral/60">{new Date(u.createdAt).toLocaleDateString()}</td>
+                                                            <td>{u.streak}</td>
+                                                            <td className="text-neutral/60">
+                                                                {u.lastEntryDate ? new Date(u.lastEntryDate).toLocaleDateString() : '—'}
+                                                            </td>
+                                                            <td>
+                                                                <button
+                                                                    className="btn btn-ghost btn-xs text-error"
+                                                                    onClick={() => {
+                                                                        setUserToDelete(u);
+                                                                        document.getElementById('admin_delete_modal').showModal();
+                                                                    }}
+                                                                >
+                                                                    <LuTrash2 size={14} />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
                     </div>
                 </div>
 

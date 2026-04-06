@@ -1,7 +1,7 @@
 const User = require('../models/User.js');
 const generateToken = require('../utils/generateToken.js');
 const OTP = require('../models/OTP');
-const { sendOTPEmail } = require('../services/emailService');
+const { sendOTPEmail, sendTherapistPendingEmail } = require('../services/emailService');
 const crypto = require('crypto');
 
 exports.registerUser = async (req, res) => {
@@ -69,6 +69,11 @@ exports.verifyRegistration = async (req, res) => {
         }
 
         const user = await User.create(userData);
+
+        // Notify admins when a new therapist registers (fire-and-forget)
+        if (user.role === 'therapist') {
+            sendTherapistPendingEmail(user.name, user.email);
+        }
 
         await OTP.deleteOne({ _id: otpRecord._id });
 

@@ -3,6 +3,7 @@ const Entry = require('../models/Entry');
 const Analysis = require('../models/Analysis');
 const DeletedUser = require('../models/DeletedUser');
 const generatePracticeCode = require('../utils/generatePracticeCode');
+const { sendTherapistApprovedEmail } = require('../services/emailService');
 
 // Helper: group documents by day for the last N days
 const groupByDay = (docs, dateField, days = 30) => {
@@ -23,13 +24,14 @@ const groupByDay = (docs, dateField, days = 30) => {
 
 exports.getStats = async (req, res) => {
     try {
-        const [totalUsers, totalEntries, totalAnalyses, pendingTherapists] = await Promise.all([
+        const [totalUsers, totalEntries, totalAnalyses, pendingTherapists, totalTherapists] = await Promise.all([
             User.countDocuments({ role: { $ne: 'admin' } }),
             Entry.countDocuments(),
             Analysis.countDocuments(),
             User.countDocuments({ role: 'therapist', isVerified: false }),
+            User.countDocuments({ role: 'therapist' }),
         ]);
-        res.json({ totalUsers, totalEntries, totalAnalyses, pendingTherapists });
+        res.json({ totalUsers, totalEntries, totalAnalyses, pendingTherapists, totalTherapists });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -112,7 +114,7 @@ exports.getAggregatedInsights = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find({ role: { $ne: 'admin' } })
-            .select('name email avatar createdAt streak longestStreak lastEntryDate')
+            .select('name email avatar role createdAt streak longestStreak lastEntryDate')
             .sort({ createdAt: -1 });
         res.json(users);
     } catch (err) {
@@ -153,6 +155,9 @@ exports.verifyTherapist = async (req, res) => {
         therapist.isVerified = true;
         therapist.practiceCode = practiceCode;
         await therapist.save();
+
+        // Notify therapist of approval (fire-and-forget)
+        sendTherapistApprovedEmail(therapist.email, therapist.name, practiceCode);
 
         res.json({ message: 'Therapist verified', practiceCode });
     } catch (err) {
