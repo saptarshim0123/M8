@@ -40,12 +40,17 @@ exports.createEntry = async (req, res) => {
 
 exports.getEntries = async (req, res) => {
     try {
-        const keyword = req.query.search
-            ? { title: { $regex: req.query.search, $options: 'i' } }
-            : {};
-        const entries = await Entry.find({ userId: req.user._id, ...keyword })
+        const { search, tag, sort } = req.query;
+
+        const filter = { userId: req.user._id };
+        if (search) filter.title = { $regex: search, $options: 'i' };
+        if (tag) filter.tags = tag;
+
+        const sortOrder = sort === 'oldest' ? { createdAt: 1 } : { createdAt: -1 };
+
+        const entries = await Entry.find(filter)
             .select('title images tags createdAt updatedAt')
-            .sort({ createdAt: -1 });
+            .sort(sortOrder);
         res.status(200).json(entries);
     } catch (err) {
         res.status(500).json({ message: 'Failed to fetch entries', error: err.message });

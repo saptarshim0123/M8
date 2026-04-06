@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { getAllAnalyses } from '../api/analyzeAPI';
 import {
     ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    PieChart, Pie, Cell,
+    PieChart, Pie,
     BarChart, Bar
 } from 'recharts';
 
@@ -122,8 +122,10 @@ const Insights = () => {
         let maxCount = 0;
         let topMood = 'N/A';
         const pieData = [];
+        let colorIdx = 0;
         for (const [mood, count] of Object.entries(moodCounts)) {
-            pieData.push({ name: mood, value: count });
+            pieData.push({ name: mood, value: count, fill: COLORS[colorIdx % COLORS.length] });
+            colorIdx++;
             if (count > maxCount) {
                 maxCount = count;
                 topMood = mood;
@@ -134,7 +136,8 @@ const Insights = () => {
         const barData = Object.entries(distortionCounts)
             .map(([name, count]) => ({ name, count }))
             .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
+            .slice(0, 5)
+            .map((item, index) => ({ ...item, fill: COLORS[(index + 2) % COLORS.length] }));
 
         // Create top keywords
         const topKw = Object.entries(keywordCounts)
@@ -220,7 +223,7 @@ const Insights = () => {
                         <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5 lg:col-span-2">
                             <h2 className="text-xl font-bold mb-4 font-heading">Sentiment & Intensity Timeline</h2>
                             <div className="h-72 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <ComposedChart data={trendData}>
                                         <defs>
                                             <linearGradient id="colorSentiment" x1="0" y1="0" x2="0" y2="1">
@@ -248,7 +251,7 @@ const Insights = () => {
                         <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5">
                             <h2 className="text-xl font-bold mb-4 font-heading">Mood Distribution</h2>
                             <div className="h-64 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
+                                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                     <PieChart>
                                         <Pie
                                             data={moodDistribution}
@@ -257,11 +260,7 @@ const Insights = () => {
                                             paddingAngle={5}
                                             dataKey="value"
                                             stroke="none"
-                                        >
-                                            {moodDistribution.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
+                                        />
                                         <Tooltip
                                             contentStyle={{ backgroundColor: 'oklch(var(--b1))', border: 'none', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                         />
@@ -276,7 +275,7 @@ const Insights = () => {
                             <h2 className="text-xl font-bold mb-4 font-heading">Top Cognitive Distortions</h2>
                             {topDistortions.length > 0 ? (
                                 <div className="h-64 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                                         <BarChart data={topDistortions} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="currentColor" opacity={0.1} />
                                             <XAxis type="number" hide />
@@ -285,11 +284,7 @@ const Insights = () => {
                                                 cursor={{ fill: 'currentColor', opacity: 0.05 }}
                                                 contentStyle={{ backgroundColor: 'oklch(var(--b1))', border: 'none', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                             />
-                                            <Bar dataKey="count" fill="#ec4899" radius={[0, 4, 4, 0]} barSize={24}>
-                                                {topDistortions.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                                                ))}
-                                            </Bar>
+                                            <Bar dataKey="count" radius={[0, 4, 4, 0]} barSize={24} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
