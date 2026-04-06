@@ -1,4 +1,4 @@
-import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuSun, LuMoon, LuSparkles } from "react-icons/lu";
+import { LuChartNoAxesCombined, LuHouse, LuPenLine, LuSun, LuMoon, LuSparkles, LuShieldCheck } from "react-icons/lu";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../context/ThemeContext";
@@ -82,6 +82,11 @@ const Sidebar = () => {
 					<ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
 						<li><a onClick={handleLogout}>Log out</a></li>
 						<li><a onClick={handleViewProfile}>View Profile</a></li>
+						{user?.role === 'admin' && (
+							<li><a onClick={() => { navigate('/admin'); document.activeElement.blur(); }}>
+								<LuShieldCheck size={14} /> Admin Panel
+							</a></li>
+						)}
 					</ul>
 				</div>
 			</div>

@@ -61,6 +61,7 @@ exports.verifyRegistration = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                role: user.role,
                 token: generateToken(user._id),
             });
         } else {
@@ -107,7 +108,8 @@ exports.getUserProfile = async (req, res) => {
             streak: req.user.streak,
             longestStreak: req.user.longestStreak,
             lastEntryDate: req.user.lastEntryDate,
-            weeklyDigestEnabled: req.user.weeklyDigestEnabled
+            weeklyDigestEnabled: req.user.weeklyDigestEnabled,
+            role: req.user.role
         });
     } else {
         res.status(404).json({ message: 'User not found' });
@@ -203,6 +205,7 @@ exports.verify2FA = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            role: user.role,
             token: generateToken(user._id)
         });
 

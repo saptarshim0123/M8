@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const passport = require('./config/passport');
 const ghostRoute = require('./routes/ghostRoute');
 const chatRoutes = require('./routes/chatRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/entries', entryRoutes);
 app.use('/api/analyze', analyzeRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
     res.send('API is working...')

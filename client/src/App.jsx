@@ -14,6 +14,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import GoogleAuthSuccess from './pages/GoogleAuthSuccess';
 import Insights from './pages/Insights';
 import Chat from './pages/Chat';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminRoute from './components/AdminRoute';
 
 function App() {
 
@@ -39,6 +41,10 @@ function App() {
             <Route path="/insights" element={<AppLayout><Insights /></AppLayout>} />
             <Route path="/chat" element={<AppLayout><Chat /></AppLayout>} />
             <Route path="/chat/:id" element={<AppLayout><Chat /></AppLayout>} />
+          </Route>
+
+          <Route element={<AdminRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
           </Route>
           
         </Routes>

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Entry = require('../models/Entry');
 const Analysis = require('../models/Analysis');
+const DeletedUser = require('../models/DeletedUser');
 const bcrypt = require('bcryptjs');
 
 exports.updateProfile = async (req, res) => {
@@ -63,6 +64,7 @@ exports.deleteAccount = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        await DeletedUser.create({ deletedAt: new Date() });
         res.status(200).json({ message: 'Account deleted successfully' });
     } catch (err) {
         res.status(500).json({ message: err.message });
