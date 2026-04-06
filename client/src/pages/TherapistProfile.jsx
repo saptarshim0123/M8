@@ -123,18 +123,7 @@ const TherapistProfile = () => {
     }
 
     return (
-        <div className="min-h-screen bg-base-200">
-            {/* Top bar */}
-            <div className="navbar bg-base-100 border-b px-6 sticky top-0 z-10">
-                <div className="flex-1">
-                    <span className="font-heading text-xl font-bold">Profile</span>
-                </div>
-                <button className="btn btn-ghost btn-sm" onClick={() => navigate('/therapist')}>
-                    ← Dashboard
-                </button>
-            </div>
-
-            <div className="w-full max-w-2xl mx-auto px-6 py-8">
+        <div className="w-full max-w-2xl mx-auto px-6 py-8">
 
                 {/* Avatar + Info */}
                 <div className="flex flex-col items-center text-center mb-8">
@@ -337,8 +326,7 @@ const TherapistProfile = () => {
                             </button>
                         </div>
                     </div>
-                </dialog>
-            </div>
+            </dialog>
         </div>
     )
 }

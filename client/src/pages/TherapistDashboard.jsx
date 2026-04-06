@@ -43,7 +43,6 @@ const TherapistDashboard = () => {
             await acceptRequest(id);
             setRequests(prev => prev.filter(r => r._id !== id));
             toast.success('Connection accepted!');
-            // Refresh patients
             const res = await getPatients();
             setPatients(res.data);
         } catch (err) {
@@ -68,62 +67,58 @@ const TherapistDashboard = () => {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
-
     return (
         <div className="min-h-screen bg-base-200">
-            <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+            <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-4 md:space-y-6">
 
-                {/* Page title */}
-                <h1 className="font-heading text-2xl font-bold">Therapist Dashboard</h1>
+                <h1 className="font-heading text-xl md:text-2xl font-bold">Therapist Dashboard</h1>
 
                 {/* Practice Code Card */}
                 <div className="card bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 shadow-sm">
-                    <div className="card-body flex-row items-center justify-between flex-wrap gap-4">
-                        <div>
-                            <h2 className="font-bold text-lg font-data">Your Practice Code</h2>
-                            <p className="text-xs text-neutral/50">Share this code with your clients so they can connect with you</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="font-mono text-3xl font-black tracking-[0.3em] text-primary">
-                                {user?.practiceCode || '------'}
-                            </span>
-                            <button onClick={handleCopyCode} className="btn btn-ghost btn-sm btn-square">
-                                {copied ? <LuCheck size={18} className="text-success" /> : <LuCopy size={18} />}
-                            </button>
+                    <div className="card-body p-4 md:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h2 className="font-bold text-base md:text-lg font-data">Your Practice Code</h2>
+                                <p className="text-xs text-neutral/50">Share this code with your clients to connect</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="font-mono text-2xl md:text-3xl font-black tracking-[0.2em] md:tracking-[0.3em] text-primary">
+                                    {user?.practiceCode || '------'}
+                                </span>
+                                <button onClick={handleCopyCode} className="btn btn-ghost btn-sm btn-square shrink-0">
+                                    {copied ? <LuCheck size={18} className="text-success" /> : <LuCopy size={18} />}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Stats row */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
                     <div className="card bg-base-100 border shadow-sm">
-                        <div className="card-body flex-row items-center gap-4">
-                            <div className="p-3 rounded-xl bg-primary/10 text-primary text-2xl"><LuUsers /></div>
-                            <div>
-                                <p className="text-sm text-neutral/50">Active Patients</p>
-                                <p className="text-2xl font-bold font-data">{patients.length}</p>
+                        <div className="card-body p-3 md:p-5 flex-row items-center gap-3">
+                            <div className="p-2 md:p-3 rounded-xl bg-primary/10 text-primary text-xl md:text-2xl shrink-0"><LuUsers /></div>
+                            <div className="min-w-0">
+                                <p className="text-xs md:text-sm text-neutral/50 truncate">Patients</p>
+                                <p className="text-xl md:text-2xl font-bold font-data">{patients.length}</p>
                             </div>
                         </div>
                     </div>
                     <div className="card bg-base-100 border shadow-sm">
-                        <div className="card-body flex-row items-center gap-4">
-                            <div className="p-3 rounded-xl bg-warning/10 text-warning text-2xl"><LuBell /></div>
-                            <div>
-                                <p className="text-sm text-neutral/50">Pending Requests</p>
-                                <p className="text-2xl font-bold font-data">{requests.length}</p>
+                        <div className="card-body p-3 md:p-5 flex-row items-center gap-3">
+                            <div className="p-2 md:p-3 rounded-xl bg-warning/10 text-warning text-xl md:text-2xl shrink-0"><LuBell /></div>
+                            <div className="min-w-0">
+                                <p className="text-xs md:text-sm text-neutral/50 truncate">Pending</p>
+                                <p className="text-xl md:text-2xl font-bold font-data">{requests.length}</p>
                             </div>
                         </div>
                     </div>
-                    <div className="card bg-base-100 border shadow-sm">
-                        <div className="card-body flex-row items-center gap-4">
-                            <div className="p-3 rounded-xl bg-success/10 text-success text-2xl"><LuClipboardCheck /></div>
-                            <div>
-                                <p className="text-sm text-neutral/50">Status</p>
-                                <p className="text-lg font-bold font-data text-success">Verified ✓</p>
+                    <div className="card bg-base-100 border shadow-sm col-span-2 sm:col-span-1">
+                        <div className="card-body p-3 md:p-5 flex-row items-center gap-3">
+                            <div className="p-2 md:p-3 rounded-xl bg-success/10 text-success text-xl md:text-2xl shrink-0"><LuClipboardCheck /></div>
+                            <div className="min-w-0">
+                                <p className="text-xs md:text-sm text-neutral/50 truncate">Status</p>
+                                <p className="text-base md:text-lg font-bold font-data text-success">Verified ✓</p>
                             </div>
                         </div>
                     </div>
@@ -132,9 +127,9 @@ const TherapistDashboard = () => {
                 {/* Connection Requests */}
                 {requests.length > 0 && (
                     <div className="card bg-base-100 border shadow-sm border-warning/30">
-                        <div className="card-body">
-                            <h2 className="font-bold font-data text-lg flex items-center gap-2">
-                                <LuBell className="text-warning" /> New Connection Requests
+                        <div className="card-body p-4 md:p-6">
+                            <h2 className="font-bold font-data text-base md:text-lg flex items-center gap-2">
+                                <LuBell className="text-warning shrink-0" /> New Requests
                                 <span className="badge badge-warning badge-sm">{requests.length}</span>
                             </h2>
                             <div className="space-y-3 mt-2">
@@ -142,22 +137,22 @@ const TherapistDashboard = () => {
                                     [1, 2].map(i => <div key={i} className="skeleton h-16 w-full" />)
                                 ) : (
                                     requests.map(req => (
-                                        <div key={req._id} className="flex items-center justify-between bg-base-200 rounded-xl p-4">
-                                            <div className="flex items-center gap-3">
+                                        <div key={req._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-base-200 rounded-xl p-3 md:p-4">
+                                            <div className="flex items-center gap-3 min-w-0">
                                                 {req.userId?.avatar ? (
-                                                    <img src={req.userId.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                                                    <img src={req.userId.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
                                                 ) : (
                                                     <div className="shrink-0 overflow-hidden rounded-full">
                                                         <Avatar size={40} name={req.userId?.name} variant="beam"
                                                             colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']} />
                                                     </div>
                                                 )}
-                                                <div>
-                                                    <p className="font-medium">{req.userId?.name}</p>
-                                                    <p className="text-xs text-neutral/50">{req.userId?.email}</p>
+                                                <div className="min-w-0">
+                                                    <p className="font-medium text-sm truncate">{req.userId?.name}</p>
+                                                    <p className="text-xs text-neutral/50 truncate">{req.userId?.email}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex gap-2">
+                                            <div className="flex gap-2 shrink-0 ml-auto sm:ml-0">
                                                 <button onClick={() => handleAccept(req._id)} className="btn btn-success btn-sm gap-1">
                                                     <LuCheck size={14} /> Accept
                                                 </button>
@@ -175,8 +170,8 @@ const TherapistDashboard = () => {
 
                 {/* Patient List */}
                 <div className="card bg-base-100 border shadow-sm">
-                    <div className="card-body">
-                        <h2 className="font-bold font-data text-lg flex items-center gap-2">
+                    <div className="card-body p-4 md:p-6">
+                        <h2 className="font-bold font-data text-base md:text-lg flex items-center gap-2">
                             <LuUsers /> Patient List ({patients.length})
                         </h2>
 
@@ -191,69 +186,121 @@ const TherapistDashboard = () => {
                                 <p className="text-xs mt-1">Share your Practice Code with clients to get started.</p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto mt-2">
-                                <table className="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Patient</th>
-                                            <th>Current Vibe</th>
-                                            <th>Last Journal</th>
-                                            <th>Sharing</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {patients.map(p => (
-                                            <tr key={p.connectionId} className="hover:bg-base-200/50 cursor-pointer"
-                                                onClick={() => navigate(`/therapist/patient/${p.user._id}`)}>
-                                                <td>
-                                                    <div className="flex items-center gap-2">
-                                                        {p.user.avatar ? (
-                                                            <img src={p.user.avatar} className="w-8 h-8 rounded-full object-cover" alt="" />
-                                                        ) : (
-                                                            <div className="shrink-0 overflow-hidden rounded-full">
-                                                                <Avatar size={32} name={p.user.name} variant="beam"
-                                                                    colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']} />
+                            <>
+                                {/* Desktop table */}
+                                <div className="overflow-x-auto mt-2 hidden md:block">
+                                    <table className="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Patient</th>
+                                                <th>Current Vibe</th>
+                                                <th>Last Journal</th>
+                                                <th>Sharing</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {patients.map(p => (
+                                                <tr key={p.connectionId} className="hover:bg-base-200/50 cursor-pointer"
+                                                    onClick={() => navigate(`/therapist/patient/${p.user._id}`)}>
+                                                    <td>
+                                                        <div className="flex items-center gap-2">
+                                                            {p.user.avatar ? (
+                                                                <img src={p.user.avatar} className="w-8 h-8 rounded-full object-cover" alt="" />
+                                                            ) : (
+                                                                <div className="shrink-0 overflow-hidden rounded-full">
+                                                                    <Avatar size={32} name={p.user.name} variant="beam"
+                                                                        colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']} />
+                                                                </div>
+                                                            )}
+                                                            <div>
+                                                                <span className="font-medium">{p.user.name}</span>
+                                                                <p className="text-xs text-neutral/50">{p.user.email}</p>
                                                             </div>
-                                                        )}
-                                                        <div>
-                                                            <span className="font-medium">{p.user.name}</span>
-                                                            <p className="text-xs text-neutral/50">{p.user.email}</p>
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`badge badge-sm ${MOOD_BADGES[p.latestMood]}`}>
+                                                            {p.latestMood}
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-neutral/60 text-sm">
+                                                        {p.user.lastEntryDate
+                                                            ? new Date(p.user.lastEntryDate).toLocaleDateString()
+                                                            : '—'}
+                                                    </td>
+                                                    <td>
+                                                        {p.user.shareRawJournals
+                                                            ? <span className="badge badge-success badge-xs">Journals</span>
+                                                            : <span className="badge badge-ghost badge-xs">Insights only</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-ghost btn-xs gap-1"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(`/therapist/chat/${p.chatRoomId}`);
+                                                            }}
+                                                        >
+                                                            <LuMessageCircle size={14} /> Chat
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile card list */}
+                                <div className="space-y-3 mt-3 md:hidden">
+                                    {patients.map(p => (
+                                        <div key={p.connectionId}
+                                            className="bg-base-200 rounded-xl p-3 active:bg-base-300 transition-colors cursor-pointer"
+                                            onClick={() => navigate(`/therapist/patient/${p.user._id}`)}>
+                                            <div className="flex items-center gap-3">
+                                                {p.user.avatar ? (
+                                                    <img src={p.user.avatar} className="w-10 h-10 rounded-full object-cover shrink-0" alt="" />
+                                                ) : (
+                                                    <div className="shrink-0 overflow-hidden rounded-full">
+                                                        <Avatar size={40} name={p.user.name} variant="beam"
+                                                            colors={['#c4a882', '#7a5c3a', '#f5ede0', '#3d2b1f', '#e8d8c4']} />
                                                     </div>
-                                                </td>
-                                                <td>
-                                                    <span className={`badge badge-sm ${MOOD_BADGES[p.latestMood]}`}>
-                                                        {p.latestMood}
-                                                    </span>
-                                                </td>
-                                                <td className="text-neutral/60 text-sm">
-                                                    {p.user.lastEntryDate
-                                                        ? new Date(p.user.lastEntryDate).toLocaleDateString()
-                                                        : '—'}
-                                                </td>
-                                                <td>
+                                                )}
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="font-medium text-sm truncate">{p.user.name}</p>
+                                                    <p className="text-xs text-neutral/50 truncate">{p.user.email}</p>
+                                                </div>
+                                                <span className={`badge badge-sm shrink-0 ${MOOD_BADGES[p.latestMood]}`}>
+                                                    {p.latestMood}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-base-content/5">
+                                                <div className="flex gap-2">
                                                     {p.user.shareRawJournals
-                                                        ? <span className="badge badge-success badge-xs">Journals</span>
+                                                        ? <span className="badge badge-success badge-xs">Sharing</span>
                                                         : <span className="badge badge-ghost badge-xs">Insights only</span>
                                                     }
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        className="btn btn-ghost btn-xs gap-1"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            navigate(`/therapist/chat/${p.chatRoomId}`);
-                                                        }}
-                                                    >
-                                                        <LuMessageCircle size={14} /> Chat
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    <span className="text-xs text-neutral/40">
+                                                        {p.user.lastEntryDate
+                                                            ? new Date(p.user.lastEntryDate).toLocaleDateString()
+                                                            : 'No entries'}
+                                                    </span>
+                                                </div>
+                                                <button
+                                                    className="btn btn-ghost btn-xs gap-1"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/therapist/chat/${p.chatRoomId}`);
+                                                    }}
+                                                >
+                                                    <LuMessageCircle size={14} /> Chat
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
