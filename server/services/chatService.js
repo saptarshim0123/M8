@@ -51,22 +51,15 @@ If the user seems unsure how to start, you can suggest:
 - "Is there something that's been weighing on your mind lately?"
 - "Would you like to try a quick thought exercise together?"`;
 
-// In-memory cache: userId -> Gemini ChatSession
 const activeSessions = new Map();
 
-/**
- * Get or create a Gemini chat session for a user.
- * Restores history from saved messages if available.
- */
 const getOrCreateGeminiChat = (userId, existingMessages = []) => {
     const cacheKey = userId.toString();
 
-    // If we already have an active Gemini session, return it
     if (activeSessions.has(cacheKey)) {
         return activeSessions.get(cacheKey);
     }
 
-    // Build history from existing messages for context restoration
     const history = existingMessages.map(msg => ({
         role: msg.role,
         parts: [{ text: msg.content }],
@@ -94,9 +87,6 @@ const getOrCreateGeminiChat = (userId, existingMessages = []) => {
     throw new Error('All Gemini models failed to initialize chat session.');
 };
 
-/**
- * Send a message to the therapist and get a response.
- */
 const sendTherapistMessage = async (userId, userMessage, existingMessages = []) => {
     const { chat, modelName } = getOrCreateGeminiChat(userId, existingMessages);
 
@@ -106,23 +96,17 @@ const sendTherapistMessage = async (userId, userMessage, existingMessages = []) 
         console.log(`Therapist response generated using ${modelName}`);
         return response;
     } catch (err) {
-        // If the session errored, clear it so next attempt creates a fresh one
         activeSessions.delete(userId.toString());
         console.error(`Chat error: ${err.message}`);
         throw new Error('Failed to generate therapist response. Please try again.');
     }
 };
 
-/**
- * Clear the in-memory Gemini session for a user.
- */
 const clearGeminiSession = (userId) => {
     activeSessions.delete(userId.toString());
 };
 
-/**
- * Generate a short title for a chat session from the first message.
- */
+
 const generateChatTitle = async (firstMessage) => {
     for (const modelName of MODELS) {
         try {

@@ -1,10 +1,6 @@
 const ChatSession = require('../models/ChatSession');
 const { sendTherapistMessage, clearGeminiSession, generateChatTitle } = require('../services/chatService');
 
-/**
- * POST /api/chat/message
- * Send a message to the AI therapist. Creates a new session if no sessionId provided.
- */
 const sendMessage = async (req, res) => {
     try {
         const { message, sessionId } = req.body;
@@ -17,27 +13,24 @@ const sendMessage = async (req, res) => {
         let session;
 
         if (sessionId) {
-            // Continue existing session
             session = await ChatSession.findOne({ _id: sessionId, userId });
             if (!session) {
                 return res.status(404).json({ message: 'Chat session not found' });
             }
         } else {
-            // Create new session
             session = new ChatSession({ userId, messages: [] });
         }
 
         // Add user message
         session.messages.push({ role: 'user', content: message.trim() });
 
-        // Get AI response (pass existing messages for context)
-        const existingMessages = session.messages.slice(0, -1); // All messages before the current one
+        // Get AI response
+        const existingMessages = session.messages.slice(0, -1); 
         const aiResponse = await sendTherapistMessage(userId, message.trim(), existingMessages);
 
         // Add AI response
         session.messages.push({ role: 'model', content: aiResponse });
-
-        // Generate title from first message if this is a new conversation
+        
         if (session.messages.length === 2) {
             session.title = await generateChatTitle(message.trim());
         }
@@ -56,10 +49,7 @@ const sendMessage = async (req, res) => {
     }
 };
 
-/**
- * GET /api/chat/sessions
- * Get all chat sessions for the logged-in user (titles + metadata only).
- */
+
 const getSessions = async (req, res) => {
     try {
         const sessions = await ChatSession.find({ userId: req.user._id })
@@ -85,10 +75,6 @@ const getSessions = async (req, res) => {
     }
 };
 
-/**
- * GET /api/chat/session/:id
- * Get a single chat session with all messages.
- */
 const getSession = async (req, res) => {
     try {
         const session = await ChatSession.findOne({
@@ -107,10 +93,6 @@ const getSession = async (req, res) => {
     }
 };
 
-/**
- * DELETE /api/chat/session/:id
- * Delete a chat session.
- */
 const deleteSession = async (req, res) => {
     try {
         const session = await ChatSession.findOneAndDelete({
