@@ -34,11 +34,9 @@
 }
 
 [data-theme="luxury"] {
-	/* Fix contrast issues against the dark background */
-	--color-neutral: oklch(90% 0.01 200); /* light gray/silver text */
+	--color-neutral: oklch(90% 0.01 200); 
 	--color-neutral-content: oklch(10% 0.01 200);
 	
-	/* Luxury gold for secondary accents/headings that were originally dark blue */
 	--color-secondary: oklch(85% 0.1 80); 
 	--color-secondary-content: oklch(20% 0.1 80);
 }
@@ -91,7 +89,6 @@
 
 /* ===== CHAT UI STYLES ===== */
 
-/* Animations */
 @keyframes fade-in {
 	from { opacity: 0; }
 	to { opacity: 1; }
@@ -120,7 +117,6 @@
 	animation: slide-up 0.35s ease-out both;
 }
 
-/* Typing dots */
 .typing-dot {
 	width: 7px;
 	height: 7px;
@@ -134,7 +130,6 @@
 	background: oklch(75% 0.08 80);
 }
 
-/* Chat Sidebar */
 .chat-sidebar {
 	width: 260px;
 	background: oklch(95% 0.01 58);
@@ -161,7 +156,6 @@
 	}
 }
 
-/* Chat Header */
 .chat-header {
 	display: flex;
 	align-items: center;
@@ -177,7 +171,6 @@
 	background: oklch(12% 0.005 200 / 0.85);
 }
 
-/* AI Avatar */
 .chat-avatar-ai {
 	width: 32px;
 	height: 32px;
@@ -210,7 +203,6 @@
 	background: linear-gradient(135deg, oklch(55% 0.12 80), oklch(45% 0.1 60));
 }
 
-/* Message Bubbles */
 .chat-bubble-ai {
 	max-width: 80%;
 	padding: 0.75rem 1rem;
@@ -241,7 +233,6 @@
 	color: oklch(97% 0.01 80);
 }
 
-/* Messages area */
 .chat-messages-area {
 	background: oklch(97% 0.005 58);
 }
@@ -250,7 +241,6 @@
 	background: oklch(10% 0.005 200);
 }
 
-/* Welcome Icon */
 .chat-welcome-icon {
 	width: 72px;
 	height: 72px;
@@ -269,7 +259,6 @@
 	box-shadow: 0 8px 32px oklch(50% 0.1 80 / 0.2);
 }
 
-/* Suggested Prompts */
 .chat-prompt-pill {
 	display: flex;
 	align-items: center;
@@ -305,7 +294,6 @@
 	box-shadow: 0 4px 12px oklch(50% 0.08 80 / 0.15);
 }
 
-/* Input Area */
 .chat-input-area {
 	padding: 1rem 1rem 1.25rem;
 	border-top: 1px solid oklch(88% 0.02 58 / 0.4);
@@ -402,7 +390,7 @@
 	box-shadow: 0 4px 12px oklch(50% 0.1 80 / 0.3);
 }
 
-/* Chat CTA Button on Dashboard */
+
 .chat-cta-card {
 	display: flex;
 	align-items: center;

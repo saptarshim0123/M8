@@ -1,0 +1,9 @@
+The Cause: The WriteEntry.jsx file uses a debounced autosave function that runs behind the scenes as you type. If you were typing quickly, 
+or if autosave happened simultaneously while you clicked "Add Images" or the "Save & Analyze" button, there was a race condition. 
+Since React state (entryId) updates asynchronously, the different save operations sometimes saw a "stale" state where entryId was still null. 
+As a result, both operations thought they were saving a brand new entry and called the createEntry API instead of updateEntry.
+
+The Fix: I introduced a synchronous tracker using useRef (entryIdRef) to immediately store the created document's ID the moment the API responds. 
+I updated the autosave, handleSaveAndAnalyze, and handleImageSelection functions to check this Ref directly. Now, if any operation creates an entry, 
+the very next operation—even if it fires milliseconds later—will see the ID in entryIdRef and securely update the existing document rather than 
+duplicating it.

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { sendChatMessage, getChatSessions, getChatSession, deleteChatSession } from '../api/chatAPI';
-import { LuSend, LuPlus, LuTrash2, LuMessageCircle, LuChevronLeft, LuSparkles, LuMenu, LuX } from 'react-icons/lu';
+import { LuSend, LuPlus, LuTrash2, LuMessageCircle, LuSparkles, LuMenu, LuX } from 'react-icons/lu';
 import toast from 'react-hot-toast';
 
 const SUGGESTED_PROMPTS = [
@@ -82,7 +82,6 @@ const Chat = () => {
         }
     }, [sessionIdParam]);
 
-    // Auto-scroll to bottom
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, loading]);
@@ -121,7 +120,7 @@ const Chat = () => {
 
         try {
             const res = await sendChatMessage(messageText, currentSessionId);
-            const { sessionId, aiResponse, title } = res.data;
+            const { sessionId, aiResponse } = res.data;
 
             if (!currentSessionId) {
                 setCurrentSessionId(sessionId);
@@ -135,7 +134,7 @@ const Chat = () => {
         } catch (err) {
             console.error('Send error:', err);
             toast.error('Failed to get response. Please try again.');
-            setMessages(prev => prev.slice(0, -1)); // Remove the user message on error
+            setMessages(prev => prev.slice(0, -1)); 
         } finally {
             setLoading(false);
             inputRef.current?.focus();
@@ -159,6 +158,7 @@ const Chat = () => {
                 handleNewChat();
             }
         } catch (err) {
+            console.log(err.message);
             toast.error('Failed to delete');
         }
     };

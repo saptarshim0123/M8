@@ -5,7 +5,7 @@ const DeletedUser = require('../models/DeletedUser');
 const generatePracticeCode = require('../utils/generatePracticeCode');
 const { sendTherapistApprovedEmail } = require('../services/emailService');
 
-// Helper: group documents by day for the last N days
+// group documents by day for the last N days
 const groupByDay = (docs, dateField, days = 30) => {
     const result = {};
     const now = new Date();
@@ -68,12 +68,12 @@ exports.getDeletedUsers = async (req, res) => {
 exports.getAggregatedInsights = async (req, res) => {
     try {
         const [moodDist, avgScores, topDistortions, topKeywords] = await Promise.all([
-            // Mood distribution
+            // mood distribution
             Analysis.aggregate([
                 { $group: { _id: '$mood', count: { $sum: 1 } } },
                 { $sort: { count: -1 } }
             ]),
-            // Average sentiment and intensity
+            // avg sentiment and intensity
             Analysis.aggregate([
                 {
                     $group: {
@@ -145,7 +145,6 @@ exports.getPendingTherapists = async (req, res) => {
     }
 };
 
-// Verify a therapist
 exports.verifyTherapist = async (req, res) => {
     try {
         const therapist = await User.findOne({ _id: req.params.id, role: 'therapist', isVerified: false });
@@ -156,7 +155,6 @@ exports.verifyTherapist = async (req, res) => {
         therapist.practiceCode = practiceCode;
         await therapist.save();
 
-        // Notify therapist of approval (fire-and-forget)
         sendTherapistApprovedEmail(therapist.email, therapist.name, practiceCode);
 
         res.json({ message: 'Therapist verified', practiceCode });
@@ -165,7 +163,6 @@ exports.verifyTherapist = async (req, res) => {
     }
 };
 
-// Reject (delete) a therapist
 exports.rejectTherapist = async (req, res) => {
     try {
         const therapist = await User.findOneAndDelete({ _id: req.params.id, role: 'therapist', isVerified: false });

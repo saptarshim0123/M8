@@ -24,6 +24,7 @@ const WriteEntry = () => {
 
     const [title, setTitle] = useState('');
     const [entryId, setEntryId] = useState(null);
+    const entryIdRef = useRef(id || null);
     const [lastSaved, setLastSaved] = useState(null);
     const [saving, setSaving] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -40,8 +41,8 @@ const WriteEntry = () => {
 
         setSaving(true);
         try {
-            if (entryId) {
-                await updateEntry(entryId, {
+            if (entryIdRef.current) {
+                await updateEntry(entryIdRef.current, {
                     title,
                     text: editor?.getHTML() || '<p></p>',
                     existingImages: newImages
@@ -77,7 +78,7 @@ const WriteEntry = () => {
             formData.append('existingImages', JSON.stringify(existingImages));
             validFiles.forEach(img => formData.append('images', img));
 
-            let currentId = entryId;
+            let currentId = entryIdRef.current;
             let result;
             if (currentId) {
                 const res = await updateEntry(currentId, formData);
@@ -85,6 +86,7 @@ const WriteEntry = () => {
             } else {
                 const res = await createEntry(formData);
                 currentId = res.data._id;
+                entryIdRef.current = currentId;
                 setEntryId(currentId);
                 result = res.data;
             }
@@ -106,10 +108,11 @@ const WriteEntry = () => {
         if (!content || content === '<p></p>') return;
         setSaving(true);
         try {
-            if (entryId) {
-                await updateEntry(entryId, { title, text: content, existingImages });
+            if (entryIdRef.current) {
+                await updateEntry(entryIdRef.current, { title, text: content, existingImages });
             } else {
                 const res = await createEntry({ title, text: content, existingImages });
+                entryIdRef.current = res.data._id;
                 setEntryId(res.data._id);
             }
             setLastSaved(new Date());
@@ -205,6 +208,7 @@ const WriteEntry = () => {
                 try {
                     const res = await getEntry(id);
                     setTitle(res.data.title);
+                    entryIdRef.current = id;
                     setEntryId(id);
                     setExistingImages(res.data.images || []);
                     editor?.commands.setContent(res.data.text);
@@ -224,12 +228,13 @@ const WriteEntry = () => {
         }
         setSubmitting(true);
         try {
-            let currentId = entryId;
+            let currentId = entryIdRef.current;
             if (currentId) {
                 await updateEntry(currentId, { title, text: content, existingImages });
             } else {
                 const res = await createEntry({ title, text: content, existingImages });
                 currentId = res.data._id;
+                entryIdRef.current = currentId;
                 setEntryId(currentId);
             }
             toast.success('Entry saved!');

@@ -74,7 +74,7 @@ const getOrCreateGeminiChat = (userId, existingMessages = []) => {
             });
 
             const chat = model.startChat({ history });
-            
+
             activeSessions.set(cacheKey, { chat, modelName });
             console.log(`Chat session created for user ${cacheKey} using ${modelName}`);
             return { chat, modelName };

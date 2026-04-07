@@ -102,7 +102,6 @@ userSchema.pre('findOneAndDelete', async function (next) {
         await mongoose.model('Analysis').deleteMany({ entryId: { $in: entryIds } });
         await mongoose.model('Entry').deleteMany({ userId });
 
-        // Clean up therapist-related data
         await mongoose.model('Connection').deleteMany({ $or: [{ userId }, { therapistId: userId }] });
         await mongoose.model('TherapistChatRoom').deleteMany({ $or: [{ userId }, { therapistId: userId }] });
 

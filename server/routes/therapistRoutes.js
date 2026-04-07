@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { therapistProtect } = require('../middleware/therapistMiddleware');
-const {
-    getPatients,
-    getPatientDetail,
-    getPatientAISummary,
-    getConnectionRequests,
-    acceptConnection,
-    rejectConnection,
-} = require('../controller/therapistController');
+const { getPatients, getPatientDetail, getPatientAISummary, getConnectionRequests, acceptConnection, rejectConnection, } = require('../controller/therapistController');
 
 router.get('/patients', therapistProtect, getPatients);
 router.get('/patients/:userId', therapistProtect, getPatientDetail);
