@@ -1,7 +1,6 @@
 const Connection = require('../models/Connection');
 const User = require('../models/User');
 
-// User submits a practice code to connect with a therapist
 exports.connectWithTherapist = async (req, res) => {
     try {
         const { practiceCode } = req.body;
@@ -25,10 +24,7 @@ exports.connectWithTherapist = async (req, res) => {
         }
 
         // Check if connection already exists
-        const existing = await Connection.findOne({
-            userId: req.user._id,
-            therapistId: therapist._id,
-        });
+        const existing = await Connection.findOne({userId: req.user._id,therapistId: therapist._id,});
 
         if (existing) {
             if (existing.status === 'active') {
@@ -57,7 +53,6 @@ exports.connectWithTherapist = async (req, res) => {
     }
 };
 
-// Get user's active therapist connection
 exports.getMyTherapist = async (req, res) => {
     try {
         const connection = await Connection.findOne({
@@ -80,7 +75,6 @@ exports.getMyTherapist = async (req, res) => {
     }
 };
 
-// Disconnect from therapist
 exports.disconnectTherapist = async (req, res) => {
     try {
         const connection = await Connection.findOneAndDelete({
@@ -98,7 +92,6 @@ exports.disconnectTherapist = async (req, res) => {
     }
 };
 
-// Toggle shareRawJournals setting
 exports.toggleShareJournals = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);

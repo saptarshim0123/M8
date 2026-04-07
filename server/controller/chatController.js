@@ -25,12 +25,12 @@ const sendMessage = async (req, res) => {
         session.messages.push({ role: 'user', content: message.trim() });
 
         // Get AI response
-        const existingMessages = session.messages.slice(0, -1); 
+        const existingMessages = session.messages.slice(0, -1);
         const aiResponse = await sendTherapistMessage(userId, message.trim(), existingMessages);
 
         // Add AI response
         session.messages.push({ role: 'model', content: aiResponse });
-        
+
         if (session.messages.length === 2) {
             session.title = await generateChatTitle(message.trim());
         }
@@ -61,7 +61,7 @@ const getSessions = async (req, res) => {
             _id: s._id,
             title: s.title,
             messageCount: s.messages.length,
-            lastMessage: s.messages.length > 0 
+            lastMessage: s.messages.length > 0
                 ? s.messages[s.messages.length - 1].content.substring(0, 80) + '...'
                 : '',
             createdAt: s.createdAt,
@@ -95,16 +95,12 @@ const getSession = async (req, res) => {
 
 const deleteSession = async (req, res) => {
     try {
-        const session = await ChatSession.findOneAndDelete({
-            _id: req.params.id,
-            userId: req.user._id,
-        });
+        const session = await ChatSession.findOneAndDelete({ _id: req.params.id, userId: req.user._id, });
 
         if (!session) {
             return res.status(404).json({ message: 'Chat session not found' });
         }
 
-        // Clear the in-memory Gemini session
         clearGeminiSession(req.user._id);
 
         res.status(200).json({ message: 'Chat session deleted' });

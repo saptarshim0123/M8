@@ -70,7 +70,7 @@ exports.verifyRegistration = async (req, res) => {
 
         const user = await User.create(userData);
 
-        // Notify admins when a new therapist registers (fire-and-forget)
+        // Notify admins when a new therapist registers
         if (user.role === 'therapist') {
             sendTherapistPendingEmail(user.name, user.email);
         }

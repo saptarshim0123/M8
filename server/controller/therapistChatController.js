@@ -1,7 +1,5 @@
 const TherapistChatRoom = require('../models/TherapistChatRoom');
-const Connection = require('../models/Connection');
 
-// Get chat room messages
 exports.getChatRoom = async (req, res) => {
     try {
         const { roomId } = req.params;
@@ -13,7 +11,6 @@ exports.getChatRoom = async (req, res) => {
             return res.status(404).json({ message: 'Chat room not found' });
         }
 
-        // Verify user is part of this chat room
         const userId = req.user._id.toString();
         if (chatRoom.therapistId._id.toString() !== userId && chatRoom.userId._id.toString() !== userId) {
             return res.status(403).json({ message: 'Access denied' });
@@ -25,7 +22,6 @@ exports.getChatRoom = async (req, res) => {
     }
 };
 
-// Send a message (HTTP fallback — Socket.io is primary)
 exports.sendMessage = async (req, res) => {
     try {
         const { roomId } = req.params;
@@ -45,15 +41,10 @@ exports.sendMessage = async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
-        const message = {
-            senderId: req.user._id,
-            text: text.trim(),
-            timestamp: new Date(),
-        };
+        const message = { senderId: req.user._id, text: text.trim(), timestamp: new Date(), };
 
         chatRoom.messages.push(message);
         await chatRoom.save();
-
         res.status(201).json(message);
     } catch (err) {
         res.status(500).json({ message: err.message });
