@@ -8,7 +8,12 @@ exports.updateProfile = async (req, res) => {
     try {
         const { name, bio, age, specialization } = req.body;
         
-        const updateData = { name, bio, age };
+        const updateData = { name, bio };
+        if (age !== undefined && age !== '') {
+            updateData.age = Number(age);
+        } else {
+            updateData.$unset = { age: 1 };
+        }
         if (specialization !== undefined) updateData.specialization = specialization;
         if (req.file) {
             updateData.avatar = req.file.path;

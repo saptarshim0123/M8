@@ -1,9 +1,11 @@
+import { LuFlame, LuSparkles } from 'react-icons/lu';
+
 const Hero = () => {
     return (
         <section className="min-h-[calc(100vh-64px)] flex items-center py-16 px-4">
             <div className="max-w-6xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
-                {/* LEFT — copy */}
+                {/* LEFT - copy */}
                 <div className="flex flex-col space-y-6">
                     {/* Eyebrow tag */}
                     <div className="inline-flex items-center gap-2 self-start bg-primary/10 border border-primary/20 rounded-full px-4 py-2">
@@ -51,12 +53,12 @@ const Hero = () => {
                     </div>
                 </div>
 
-                {/* RIGHT — hero visual */}
+                {/* RIGHT - hero visual */}
                 <div className="relative flex items-center justify-center h-120">
 
                     {/* Floating streak badge */}
                     <div className="absolute top-6 right-0 bg-base-100 rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 z-10 border border-base-content/5">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl">🔥</div>
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl text-primary"><LuFlame /></div>
                         <div>
                             <div className="font-data text-2xl font-bold text-neutral leading-none">14</div>
                             <div className="font-sans text-xs text-neutral/50 mt-0.5">day streak</div>
@@ -90,7 +92,7 @@ const Hero = () => {
 
                         {/* AI Insight */}
                         <div className="bg-primary/6 rounded-xl p-4 border-l-4 border-primary">
-                            <p className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest mb-1">✦ AI Insight</p>
+                            <p className="font-sans text-[10px] font-bold text-primary uppercase tracking-widest mb-1 flex items-center gap-1"><LuSparkles size={12}/> AI Insight</p>
                             <p className="font-sans text-xs text-neutral/70 leading-relaxed">
                                 You're 3× more likely to feel calm on days you go outside. Consider a daily walk.
                             </p>

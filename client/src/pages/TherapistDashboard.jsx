@@ -17,7 +17,7 @@ const MOOD_BADGES = {
 };
 
 const TherapistDashboard = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const [patients, setPatients] = useState([]);
@@ -71,10 +71,10 @@ const TherapistDashboard = () => {
         <div className="min-h-screen bg-base-200">
             <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-4 md:space-y-6">
 
-                <h1 className="font-heading text-xl md:text-2xl font-bold">Therapist Dashboard</h1>
+                <h1 className="font-data text-xl md:text-2xl font-bold">Therapist Dashboard</h1>
 
                 {/* Practice Code Card */}
-                <div className="card bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 shadow-sm">
+                <div className="card bg-linear-to-r from-primary/10 to-secondary/10 border border-primary/20 shadow-sm">
                     <div className="card-body p-4 md:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
@@ -118,7 +118,7 @@ const TherapistDashboard = () => {
                             <div className="p-2 md:p-3 rounded-xl bg-success/10 text-success text-xl md:text-2xl shrink-0"><LuClipboardCheck /></div>
                             <div className="min-w-0">
                                 <p className="text-xs md:text-sm text-neutral/50 truncate">Status</p>
-                                <p className="text-base md:text-lg font-bold font-data text-success">Verified ✓</p>
+                                <p className="text-base md:text-lg font-bold font-data text-success">Verified</p>
                             </div>
                         </div>
                     </div>

@@ -99,14 +99,22 @@ const AdminDashboard = () => {
     }, []);
 
     useEffect(() => {
-        setLoadingCharts(true);
+        let cancelled = false;
         Promise.all([getUserGrowth(range), getUserDeletions(range)])
             .then(([g, d]) => {
-                setGrowth(g.data);
-                setDeletions(d.data);
+                if (!cancelled) {
+                    setGrowth(g.data);
+                    setDeletions(d.data);
+                }
             })
-            .finally(() => setLoadingCharts(false));
+            .finally(() => { if (!cancelled) setLoadingCharts(false); });
+        return () => { cancelled = true; };
     }, [range]);
+
+    const handleRangeChange = (value) => {
+        setLoadingCharts(true);
+        setRange(value);
+    };
 
     const handleLogout = () => {
         logout();
@@ -123,15 +131,15 @@ const AdminDashboard = () => {
             await adminDeleteUser(userToDelete._id);
             setStats(s => s ? { ...s, totalUsers: s.totalUsers - 1 } : s);
             toast.success(`${userToDelete.name} deleted`);
-        } catch (err) {
+        } catch {
             toast.error('Failed to delete user');
             setUsers(original);
         }
     };
 
-    // Merge growth + deletions by date for combined chart
+    // growth + deletions by date for combined chart
     const combinedChart = growth.map(g => ({
-        date: g.date.slice(5), // MM-DD
+        date: g.date.slice(5), 
         'New Users': g.count,
         'Deletions': deletions.find(d => d.date === g.date)?.count || 0,
     }));
@@ -166,7 +174,7 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Pending Therapist Verifications */}
-                {pendingTherapists.length > 0 && (
+                {loadingTherapists ? <SectionSkeleton /> : pendingTherapists.length > 0 && (
                     <div className="card bg-base-100 border shadow-sm border-warning/30">
                         <div className="card-body">
                             <h2 className="font-bold font-data text-lg flex items-center gap-2">
@@ -253,7 +261,7 @@ const AdminDashboard = () => {
                     {RANGE_OPTIONS.map(o => (
                         <button
                             key={o.value}
-                            onClick={() => setRange(o.value)}
+                            onClick={() => handleRangeChange(o.value)}
                             className={`btn btn-sm rounded-full ${range === o.value ? 'btn-primary' : 'btn-ghost'}`}
                         >
                             {o.label}

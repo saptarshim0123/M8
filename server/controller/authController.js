@@ -83,6 +83,7 @@ exports.verifyRegistration = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                createdAt: user.createdAt,
                 token: generateToken(user._id),
             };
 
@@ -132,12 +133,14 @@ exports.getUserProfile = async (req, res) => {
             email: req.user.email,
             avatar: req.user.avatar,
             bio: req.user.bio,
+            age: req.user.age,
             streak: req.user.streak,
             longestStreak: req.user.longestStreak,
             lastEntryDate: req.user.lastEntryDate,
             weeklyDigestEnabled: req.user.weeklyDigestEnabled,
             role: req.user.role,
             shareRawJournals: req.user.shareRawJournals,
+            createdAt: req.user.createdAt,
         };
 
         if (req.user.role === 'therapist') {
@@ -242,7 +245,11 @@ exports.verify2FA = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            avatar: user.avatar,
+            bio: user.bio,
+            age: user.age,
             role: user.role,
+            createdAt: user.createdAt,
             token: generateToken(user._id)
         };
 

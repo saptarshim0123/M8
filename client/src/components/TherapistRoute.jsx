@@ -12,11 +12,7 @@ const TherapistRoute = () => {
         if (user?.role === 'therapist') {
             getMe()
                 .then(res => {
-                    updateUser({
-                        isVerified: res.data.isVerified,
-                        practiceCode: res.data.practiceCode,
-                        specialization: res.data.specialization,
-                    });
+                    updateUser(res.data);
                 })
                 .catch(() => {})
                 .finally(() => setChecking(false));

@@ -112,7 +112,7 @@ const Register = () => {
     return (
         <div>
             <Link to="/">
-                <button className="btn btn-square m-10">
+                <button className="btn btn-square m-3">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                     </svg>
@@ -159,7 +159,7 @@ const Register = () => {
                         <input {...register("confirmPassword")} type="password" className="input" placeholder="Password" />
                         {errors.confirmPassword && <span className="text-error text-xs">{errors.confirmPassword.message}</span>}
 
-                        {/* Therapist-specific fields */}
+                        {/* Therapist fields */}
                         {role === 'therapist' && (
                             <div className="border border-primary/20 rounded-xl p-3 mt-3 bg-primary/5 space-y-2">
                                 <p className="text-xs font-semibold text-primary mb-1">Therapist Credentials</p>
@@ -265,10 +265,7 @@ const Register = () => {
                                 disabled={resending}
                                 className="btn btn-ghost btn-sm"
                             >
-                                {resending
-                                    ? <span className="loading loading-spinner loading-xs" />
-                                    : 'Resend OTP'
-                                }
+                                {resending ? <span className="loading loading-spinner loading-xs" /> : 'Resend OTP'}
                             </button>
                         </div>
                     </fieldset>

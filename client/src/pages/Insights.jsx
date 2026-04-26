@@ -28,15 +28,7 @@ const Insights = () => {
     }, []);
 
     // Aggregating Data for Charts using useMemo
-    const {
-        averageSentiment,
-        mostFrequentMood,
-        trendData,
-        moodDistribution,
-        topDistortions,
-        topKeywords,
-        copingStrategies
-    } = useMemo(() => {
+    const { averageSentiment, mostFrequentMood, trendData, moodDistribution, topDistortions, topKeywords, copingStrategies } = useMemo(() => {
         if (!insights || insights.length === 0) {
             return {
                 averageSentiment: 0,
@@ -60,26 +52,25 @@ const Insights = () => {
         const keywordCounts = {};
 
         sorted.forEach((entry) => {
-            // Sentiment
             const sentiment = Number(entry.sentimentScore);
             if (!isNaN(sentiment)) {
                 totalSentiment += sentiment;
                 validSentimentCount++;
             }
 
-            // Mood Counts
+            // Moods
             if (entry.mood) {
                 moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
             }
 
-            // Distortion Counts
+            // Distortions
             if (entry.distortions && Array.isArray(entry.distortions)) {
                 entry.distortions.forEach(dist => {
                     distortionCounts[dist] = (distortionCounts[dist] || 0) + 1;
                 });
             }
 
-            // Keyword Counts
+            // Keywords
             if (entry.keywords && Array.isArray(entry.keywords)) {
                 entry.keywords.forEach(kw => {
                     if (!kw) return;

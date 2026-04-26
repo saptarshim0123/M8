@@ -8,8 +8,7 @@ const ProtectedRoute = () => {
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        // If role is missing (stale session), re-fetch from server
-        if (user && !user.role) {
+        if (user) {
             getMe()
                 .then(res => {
                     updateUser(res.data);

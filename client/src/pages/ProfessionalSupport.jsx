@@ -52,6 +52,7 @@ const ProfessionalSupport = () => {
             setConnection(null);
         } catch (err) {
             toast.error('Failed to disconnect');
+            console.log(err);
         }
     };
 
@@ -190,7 +191,7 @@ const ProfessionalSupport = () => {
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-heading font-bold">{therapist?.name}</h2>
+                            <h2 className="text-xl font-data font-bold">{therapist?.name}</h2>
                             <p className="text-sm text-base-content/50">{therapist?.specialization || 'Licensed Therapist'}</p>
                             <span className="badge badge-success badge-sm mt-1">Connected</span>
                         </div>

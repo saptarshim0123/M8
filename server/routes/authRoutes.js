@@ -25,7 +25,10 @@ router.get('/google/callback',
             name: req.user.name,
             email: req.user.email,
             avatar: req.user.avatar,
+            bio: req.user.bio,
+            age: req.user.age,
             role: req.user.role,
+            createdAt: req.user.createdAt,
             token
         }
         res.redirect(`${process.env.CLIENT_URL}/auth/google/success?data=${encodeURIComponent(JSON.stringify(user))}`)

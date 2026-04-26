@@ -1,6 +1,8 @@
+import { LuSparkles, LuChartArea, LuLeaf, LuLock, LuFlame, LuBot, LuStethoscope } from 'react-icons/lu';
+
 const features = [
     {
-        icon: '✦',
+        icon: <LuSparkles />,
         title: 'AI-powered insights',
         desc: 'Pattern recognition that connects your journal entries to real behavioural trends you might not notice yourself.',
         extra: (
@@ -19,9 +21,9 @@ const features = [
         dark: false,
     },
     {
-        icon: '📊',
+        icon: <LuChartArea />,
         title: 'Mood analytics dashboard',
-        desc: 'See your emotional trends over days, weeks, and months. Spot what drains you and what brings you joy — backed by your own words.',
+        desc: 'See your emotional trends over days, weeks, and months. Spot what drains you and what brings you joy, backed by your own words.',
         extra: (
             <div className="flex items-end gap-1.5 mt-6 h-20">
                 {[35, 55, 70, 50, 85, 60, 90, 65, 80].map((h, i) => (
@@ -38,21 +40,45 @@ const features = [
         dark: true,
     },
     {
-        icon: '🌿',
+        icon: <LuLeaf />,
         title: 'Guided prompts',
         desc: 'Thoughtful daily prompts when you don\'t know where to start. Never stare at a blank page again.',
         wide: false,
         dark: false,
     },
     {
-        icon: '🔒',
-        title: 'Private by design',
-        desc: 'End-to-end encryption. Your journal is yours alone — no ads, no data selling, no exceptions.',
+        icon: <LuBot />,
+        title: 'AI Empath Chatbot',
+        desc: 'Experience supportive, judgment-free conversations powered by intelligent AI. Get CBT-based action recommendations to help navigate difficult moments.',
+        extra: (
+            <div className="flex flex-col gap-2 mt-6">
+                <div className="bg-primary/90 text-primary-content self-end px-4 py-2 rounded-2xl rounded-br-sm text-xs max-w-[85%] shadow-sm">
+                    I've been feeling really overwhelmed with work lately.
+                </div>
+                <div className="bg-base-100/15 text-neutral-content self-start px-4 py-2 rounded-2xl rounded-bl-sm text-xs max-w-[85%] border border-base-100/20 backdrop-blur-sm">
+                    It sounds like you have a lot on your plate. Let's break it down. What's causing the most stress right now?
+                </div>
+            </div>
+        ),
+        wide: true,
+        dark: true,
+    },
+    {
+        icon: <LuStethoscope />,
+        title: 'Professional Support',
+        desc: 'Connect with verified mental health professionals right from your dashboard. Share your journey securely and get clinical guidance.',
         wide: false,
         dark: false,
     },
     {
-        icon: '🔥',
+        icon: <LuLock />,
+        title: 'Private by design',
+        desc: 'End-to-end encryption. Your journal is yours alone, no ads, no data selling, no exceptions.',
+        wide: false,
+        dark: false,
+    },
+    {
+        icon: <LuFlame />,
         title: 'Streaks & habits',
         desc: 'Build a reflective practice with gentle streak tracking and habit nudges that motivate, not guilt-trip.',
         wide: false,

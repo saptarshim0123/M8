@@ -2,7 +2,7 @@ const steps = [
     {
         num: '01',
         title: 'Write freely',
-        desc: "Open equil, write whatever's on your mind. There's no right way — a sentence is enough.",
+        desc: "Open equil, write whatever's on your mind. There's no right way, a sentence is enough.",
     },
     {
         num: '02',
@@ -31,7 +31,7 @@ const HowItWorks = () => {
         <section className="py-24 px-4">
             <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
 
-                {/* Left — steps */}
+                {/* Left - steps */}
                 <div>
                     <p className="font-sans text-xs font-semibold text-primary uppercase tracking-widest mb-3">How it works</p>
                     <h2 className="font-heading text-4xl md:text-5xl font-black text-neutral tracking-tight leading-tight mb-10">
@@ -53,7 +53,7 @@ const HowItWorks = () => {
                     </div>
                 </div>
 
-                {/* Right — analytics card */}
+                {/* Right - analytics card */}
                 <div className="bg-base-100 rounded-3xl shadow-2xl shadow-base-content/10 p-7 border border-base-content/5">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="font-heading text-lg font-bold text-neutral">Your mood this month</h3>

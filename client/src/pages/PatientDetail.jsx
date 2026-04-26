@@ -76,7 +76,7 @@ const PatientDetail = () => {
                     <button onClick={() => navigate('/therapist')} className="btn btn-ghost btn-sm btn-square">
                         <LuArrowLeft size={18} />
                     </button>
-                    <span className="font-heading text-lg font-bold">Patient Detail</span>
+                    <span className="font-data text-lg font-bold">Patient Detail</span>
                 </div>
                 {chatRoomId && (
                     <button className="btn btn-primary btn-sm gap-1"
@@ -227,7 +227,7 @@ const PatientDetail = () => {
                     </div>
                 </div>
 
-                {/* Raw Journals (if shared) */}
+                {/* Raw Journals */}
                 {recentEntries && recentEntries.length > 0 && (
                     <div className="card bg-base-100 border shadow-sm">
                         <div className="card-body">
@@ -242,7 +242,7 @@ const PatientDetail = () => {
                                                 {new Date(entry.createdAt).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <p className="text-sm text-neutral/70 line-clamp-4">{entry.text}</p>
+                                        <div className="text-sm text-neutral/70 line-clamp-4" dangerouslySetInnerHTML={{ __html: entry.text }} />
                                     </div>
                                 ))}
                             </div>

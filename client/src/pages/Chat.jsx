@@ -72,15 +72,27 @@ const Chat = () => {
         fetchSessions();
     }, []);
 
-    // Load session if URL param changes
+    // Load session when changes
     useEffect(() => {
+        const loadSession = async (id) => {
+            try {
+                const res = await getChatSession(id);
+                setCurrentSessionId(id);
+                setMessages(res.data.messages || []);
+            } catch (err) {
+                console.error('Failed to load session:', err);
+                toast.error('Failed to load conversation');
+                navigate('/chat');
+            }
+        };
+
         if (sessionIdParam) {
             loadSession(sessionIdParam);
         } else {
             setCurrentSessionId(null);
             setMessages([]);
         }
-    }, [sessionIdParam]);
+    }, [sessionIdParam, navigate]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -97,17 +109,7 @@ const Chat = () => {
         }
     };
 
-    const loadSession = async (id) => {
-        try {
-            const res = await getChatSession(id);
-            setCurrentSessionId(id);
-            setMessages(res.data.messages || []);
-        } catch (err) {
-            console.error('Failed to load session:', err);
-            toast.error('Failed to load conversation');
-            navigate('/chat');
-        }
-    };
+
 
     const handleSend = async (text = null) => {
         const messageText = text || input.trim();

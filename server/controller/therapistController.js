@@ -9,17 +9,14 @@ const { generatePatientSummary } = require('../services/geminiService');
 // Get all active patients for this therapist
 exports.getPatients = async (req, res) => {
     try {
-        const connections = await Connection.find({
-            therapistId: req.user._id,
-            status: 'active'
-        }).populate('userId', 'name email avatar lastEntryDate shareRawJournals');
+        const connections = await Connection.find({therapistId: req.user._id,status: 'active' })
+            .populate('userId', 'name email avatar lastEntryDate shareRawJournals');
 
         const patients = [];
         for (const conn of connections) {
             const user = conn.userId;
             if (!user) continue;
 
-            // Get latest analysis for "current vibe"
             const latestAnalysis = await Analysis.findOne({ userId: user._id })
                 .sort({ createdAt: -1 })
                 .select('mood sentimentScore createdAt');
@@ -200,12 +197,12 @@ exports.acceptConnection = async (req, res) => {
             return res.status(404).json({ message: 'Connection request not found' });
         }
 
-        // Create chat room
-        const chatRoom = await TherapistChatRoom.create({
-            therapistId: req.user._id,
-            userId: connection.userId,
-            messages: [],
-        });
+        // Find existing chat room or create a new one (handles reconnection)
+        const chatRoom = await TherapistChatRoom.findOneAndUpdate(
+            { therapistId: req.user._id, userId: connection.userId },
+            { $setOnInsert: { therapistId: req.user._id, userId: connection.userId, messages: [] } },
+            { upsert: true, new: true }
+        );
 
         connection.status = 'active';
         connection.chatRoomId = chatRoom._id;
