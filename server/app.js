@@ -7,7 +7,6 @@ const entryRoutes = require('./routes/entryRoutes');
 const analyzeRoutes = require('./routes/analyzeRoutes');
 const userRoutes = require('./routes/userRoutes');
 const passport = require('./config/passport');
-const ghostRoute = require('./routes/ghostRoute');
 const chatRoutes = require('./routes/chatRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const therapistRoutes = require('./routes/therapistRoutes');
@@ -35,8 +34,6 @@ app.use('/api/therapist-chat', therapistChatRoutes);
 app.get('/api/health', (req, res) => {
     res.send('API is working...')
 });
-
-app.use('/api/ghost', ghostRoute);
 
 app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || 'Server Error' });

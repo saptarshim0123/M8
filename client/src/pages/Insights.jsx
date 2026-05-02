@@ -8,9 +8,18 @@ import {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28DFF', '#FF66A5'];
 
+const TIME_RANGES = [
+    { key: 'week', label: '1W', days: 7 },
+    { key: 'month', label: '1M', days: 30 },
+    { key: '3months', label: '3M', days: 90 },
+    { key: 'year', label: '1Y', days: 365 },
+    { key: 'all', label: 'All', days: null },
+];
+
 const Insights = () => {
     const [insights, setInsights] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [timeRange, setTimeRange] = useState('all');
 
     useEffect(() => {
         const fetchInsights = async () => {
@@ -27,9 +36,22 @@ const Insights = () => {
         fetchInsights();
     }, []);
 
+    // Filter insights by selected time range
+    const filteredInsights = useMemo(() => {
+        if (!insights || insights.length === 0) return [];
+        const range = TIME_RANGES.find(r => r.key === timeRange);
+        if (!range || range.days === null) return insights;
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - range.days);
+        return insights.filter(entry => {
+            const d = new Date(entry.createdAt || entry.date);
+            return d >= cutoff;
+        });
+    }, [insights, timeRange]);
+
     // Aggregating Data for Charts using useMemo
     const { averageSentiment, mostFrequentMood, trendData, moodDistribution, topDistortions, topKeywords, copingStrategies } = useMemo(() => {
-        if (!insights || insights.length === 0) {
+        if (!filteredInsights || filteredInsights.length === 0) {
             return {
                 averageSentiment: 0,
                 mostFrequentMood: 'N/A',
@@ -42,7 +64,7 @@ const Insights = () => {
         }
 
         // Sort chronologically
-        const sorted = [...insights].sort((a, b) => new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date));
+        const sorted = [...filteredInsights].sort((a, b) => new Date(a.createdAt || a.date) - new Date(b.createdAt || b.date));
 
         let totalSentiment = 0;
         let validSentimentCount = 0;
@@ -156,7 +178,7 @@ const Insights = () => {
             copingStrategies: strategies
         };
 
-    }, [insights]);
+    }, [filteredInsights]);
 
     const getSentimentLabel = (score) => {
         const num = parseFloat(score);
@@ -166,7 +188,7 @@ const Insights = () => {
         return "Neutral";
     };
 
-    const sentimentLabel = insights.length > 0 ? getSentimentLabel(averageSentiment) : "Unknown";
+    const sentimentLabel = filteredInsights.length > 0 ? getSentimentLabel(averageSentiment) : "Unknown";
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen">
@@ -176,8 +198,29 @@ const Insights = () => {
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">
-            <h1 className="text-4xl font-heading font-black mb-2 tracking-tight">Your Insights</h1>
-            <p className="text-base-content/70 mb-8">A visual summary of your thoughts and emotions.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-heading font-black mb-2 tracking-tight">Your Insights</h1>
+                    <p className="text-base-content/70">A visual summary of your thoughts and emotions.</p>
+                </div>
+                {insights.length > 0 && (
+                    <div className="flex bg-base-200 rounded-2xl p-1 gap-0.5 self-start">
+                        {TIME_RANGES.map(r => (
+                            <button
+                                key={r.key}
+                                onClick={() => setTimeRange(r.key)}
+                                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                                    timeRange === r.key
+                                        ? 'bg-primary text-primary-content shadow-md'
+                                        : 'text-base-content/60 hover:text-base-content hover:bg-base-300'
+                                }`}
+                            >
+                                {r.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {insights.length === 0 ? (
                 <div className="text-center p-12 bg-base-200 rounded-3xl">
@@ -186,11 +229,18 @@ const Insights = () => {
                 </div>
             ) : (
                 <>
+                    {filteredInsights.length === 0 ? (
+                        <div className="text-center p-12 bg-base-200 rounded-3xl">
+                            <h3 className="text-xl font-semibold mb-2">No entries in this time range</h3>
+                            <p className="text-base-content/70">Try selecting a longer period or write more journal entries.</p>
+                        </div>
+                    ) : (
+                    <>
                     {/* KPI Section */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5 flex flex-col justify-center transition-all hover:-translate-y-1 hover:shadow-md">
                             <h2 className="text-sm font-bold text-base-content/60 uppercase tracking-wider mb-1">Total Entries Evaluated</h2>
-                            <p className="text-4xl font-black text-primary">{insights.length}</p>
+                            <p className="text-4xl font-black text-primary">{filteredInsights.length}</p>
                         </div>
                         <div className="p-6 bg-base-100 rounded-3xl shadow-sm border border-base-content/5 flex flex-col justify-center transition-all hover:-translate-y-1 hover:shadow-md">
                             <h2 className="text-sm font-bold text-base-content/60 uppercase tracking-wider mb-1">Avg. Sentiment Score</h2>
@@ -317,6 +367,8 @@ const Insights = () => {
                             </div>
                         </div>
                     </div>
+                </>
+                    )}
                 </>
             )}
         </div>
