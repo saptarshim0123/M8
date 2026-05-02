@@ -1,6 +1,6 @@
-# M8 — Smart Tourism & Mental Health AI Platform
+# equil — Smart Mental Health Journaling Platform
 
-M8 is a sophisticated MERN stack application designed to provide AI-driven mental health support through secure journaling, real-time therapy connections, and advanced sentiment analysis.
+equil is a sophisticated MERN stack application designed to provide AI-driven mental health support through secure journaling, real-time therapy connections, and advanced sentiment analysis.
 
 ## 🚀 Key Features
 
