@@ -15,6 +15,9 @@ const therapistChatRoutes = require('./routes/therapistChatRoutes');
 
 const app = express();
 
+// Trust proxy so Passport generates correct https:// callback URLs on Render
+app.set('trust proxy', 1);
+
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
