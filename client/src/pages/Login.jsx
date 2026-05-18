@@ -103,7 +103,7 @@ const Login = () => {
                                 {isSubmitting ? <span className="loading loading-spinner loading-sm" /> : 'Continue'}
                             </button>
                             <div className="divider font-data text-xs">OR</div>
-                            <a href="http://localhost:3000/api/auth/google"
+                            <a href={`${import.meta.env.VITE_API_URL}/auth/google`}
                                 className="btn btn-outline w-full gap-2 font-data"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
