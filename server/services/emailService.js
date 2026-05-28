@@ -2,6 +2,7 @@ const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Use onboarding@resend.dev for testing, or your verified domain
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
 const sendOTPEmail = async (email, otp, type = 'reset') => {
@@ -17,7 +18,7 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
         register: 'Welcome to equil! Please verify your email to complete registration.'
     }
     try {
-        const data = await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: `equil. <${FROM_EMAIL}>`,
             to: [email],
             subject: subjects[type],
@@ -38,9 +39,14 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
             </div>
         `
         });
+        
+        if (error) {
+            console.error("RESEND API ERROR:", error);
+            throw new Error(`Failed to send via Resend: ${error.message}`);
+        }
 
         console.log(`Email sent successfully to ${email}`);
-        return { success: true, messageId: data.id };
+        return { success: true, messageId: data?.id };
     } catch (err) {
         console.log("ACTUAL ERROR:", err);
         throw new Error('Failed to send verification email');
@@ -58,7 +64,7 @@ const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
 
         const adminEmails = admins.map(a => a.email);
 
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
             from: `equil. Admin <${FROM_EMAIL}>`,
             to: adminEmails,
             subject: 'New Therapist Awaiting Approval — equil',
@@ -88,7 +94,12 @@ const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
             </div>
         `
         });
-        console.log(`Therapist pending notification sent to admins`);
+        
+        if (error) {
+            console.error("RESEND API ERROR (Therapist Pending):", error);
+        } else {
+            console.log(`Therapist pending notification sent to admins`);
+        }
     } catch (err) {
         console.error('Failed to send therapist pending email to admins:', err.message);
     }
@@ -96,7 +107,7 @@ const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
 
 const sendTherapistApprovedEmail = async (therapistEmail, therapistName, practiceCode) => {
     try {
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
             from: `equil. <${FROM_EMAIL}>`,
             to: [therapistEmail],
             subject: 'You\'re Approved! Welcome to equil 🎉',
@@ -134,7 +145,12 @@ const sendTherapistApprovedEmail = async (therapistEmail, therapistName, practic
             </div>
         `
         });
-        console.log(`Approval email sent to therapist: ${therapistEmail}`);
+        
+        if (error) {
+            console.error("RESEND API ERROR (Therapist Approved):", error);
+        } else {
+            console.log(`Approval email sent to therapist: ${therapistEmail}`);
+        }
     } catch (err) {
         console.error('Failed to send therapist approval email:', err.message);
     }
