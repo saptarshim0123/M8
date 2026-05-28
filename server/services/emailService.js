@@ -1,16 +1,8 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-    },
-    connectionTimeout: 10000, // 10 seconds
-    socketTimeout: 10000,
-    logger: true,
-    debug: true
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
 
 const sendOTPEmail = async (email, otp, type = 'reset') => {
     const subjects = {
@@ -25,9 +17,9 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
         register: 'Welcome to equil! Please verify your email to complete registration.'
     }
     try {
-        const info = await transporter.sendMail({
-            from: `"equil." <${process.env.GMAIL_USER}>`,
-            to: email,
+        const data = await resend.emails.send({
+            from: `equil. <${FROM_EMAIL}>`,
+            to: [email],
             subject: subjects[type],
             html: `
             <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px;">
@@ -46,15 +38,15 @@ const sendOTPEmail = async (email, otp, type = 'reset') => {
             </div>
         `
         });
-        console.log(`Email sent successfully to ${email}: ${info.messageId}`);
-        return { success: true, messageId: info.messageId };
+
+        console.log(`Email sent successfully to ${email}`);
+        return { success: true, messageId: data.id };
     } catch (err) {
         console.log("ACTUAL ERROR:", err);
         throw new Error('Failed to send verification email');
     }
 };
 
-// Notify all admin users that a new therapist has signed up and needs approval
 const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
     const User = require('../models/User');
     try {
@@ -66,8 +58,8 @@ const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
 
         const adminEmails = admins.map(a => a.email);
 
-        await transporter.sendMail({
-            from: `"equil." <${process.env.GMAIL_USER}>`,
+        await resend.emails.send({
+            from: `equil. Admin <${FROM_EMAIL}>`,
             to: adminEmails,
             subject: 'New Therapist Awaiting Approval — equil',
             html: `
@@ -96,19 +88,17 @@ const sendTherapistPendingEmail = async (therapistName, therapistEmail) => {
             </div>
         `
         });
-        console.log(`Therapist pending notification sent to admins: ${adminEmails.join(', ')}`);
+        console.log(`Therapist pending notification sent to admins`);
     } catch (err) {
         console.error('Failed to send therapist pending email to admins:', err.message);
-        // Non-critical — don't throw so registration still succeeds
     }
 };
 
-// Notify therapist that their account has been approved
 const sendTherapistApprovedEmail = async (therapistEmail, therapistName, practiceCode) => {
     try {
-        await transporter.sendMail({
-            from: `"equil." <${process.env.GMAIL_USER}>`,
-            to: therapistEmail,
+        await resend.emails.send({
+            from: `equil. <${FROM_EMAIL}>`,
+            to: [therapistEmail],
             subject: 'You\'re Approved! Welcome to equil 🎉',
             html: `
             <div style="font-family: 'Segoe UI', sans-serif; max-width: 520px; margin: 0 auto; padding: 36px; background: #fffcf7; border-radius: 16px;">
