@@ -14,8 +14,10 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use((res) => res, (err) => {
     if (err.response?.status === 401) {
+        console.error('401 Unauthorized intercepted:', err.response?.data);
         localStorage.removeItem('user')
-        window.location.href = '/login'
+        // Commenting out hard reload to prevent silent loops
+        // window.location.href = '/login'
     }
     return Promise.reject(err)
 })
