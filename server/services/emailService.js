@@ -5,7 +5,11 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds
+    socketTimeout: 10000,
+    logger: true,
+    debug: true
 });
 
 const sendOTPEmail = async (email, otp, type = 'reset') => {
