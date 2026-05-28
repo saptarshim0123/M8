@@ -1,8 +1,6 @@
 import api from './axiosInstance'
 
-export const registerUser = (data) => api.post('/auth/register', data, {
-    headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
-});
+export const registerUser = (data) => api.post('/auth/register', data);
 export const loginUser = (data) => api.post('/auth/login', data);
 export const getMe = () => api.get('/auth/me');
 export const changePassword = (data) => api.put('/auth/change-password', data)

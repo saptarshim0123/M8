@@ -268,6 +268,20 @@ exports.verify2FA = async (req, res) => {
 exports.resendOTP = async (req, res) => {
     const { email, type } = req.body;
     try {
+        // For registration resend, the user doesn't exist yet — check OTP record instead
+        if (type === 'register') {
+            const existingOTP = await OTP.findOne({ email, type: 'register' });
+            if (!existingOTP) {
+                return res.status(404).json({ message: 'No pending registration found. Please register again.' });
+            }
+            const otp = crypto.randomInt(100000, 999999).toString();
+            existingOTP.otp = otp;
+            existingOTP.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+            await existingOTP.save();
+            await sendOTPEmail(email, otp, type);
+            return res.status(200).json({ message: 'OTP resent successfully' });
+        }
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
