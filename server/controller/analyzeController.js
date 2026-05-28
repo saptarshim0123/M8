@@ -35,7 +35,7 @@ exports.analyzeEntry = async (req, res) => {
             entryId,
             userId: req.user._id,
             mood: result.mood,
-            intensityScore: result.intensityScore,
+            intensityScore: Math.max(1, Math.min(10, Number(result.intensityScore) || 1)),
             sentimentScore: result.sentimentScore,
             aiResponse: result.aiResponse,
             copingSuggestion: result.copingSuggestion,

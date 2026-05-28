@@ -15,7 +15,7 @@ const analyzeEntry = async (entry) => {
     Journal Entry: "${entry}"
 
     Instructions:
-    1. Identify the primary mood and rate its intensity (1-10).
+    1. Identify the primary mood and rate its intensity (MUST be an integer between 1 and 10, 0 is NOT allowed).
     2. Scan for Cognitive Distortions.
        - STRICT RULE: Do not flag normal venting, annoyance, or realistic complaints (e.g., complaining about heavy traffic, being tired) as cognitive distortions.
        - Only flag recognized distortions (e.g., Catastrophizing, All-or-Nothing thinking, Emotional Reasoning) if there is undeniable clinical evidence in the text.
